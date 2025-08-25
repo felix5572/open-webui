@@ -7,6 +7,7 @@ from open_webui.config import DATA_DIR, ENABLE_ADMIN_EXPORT
 from open_webui.constants import ERROR_MESSAGES
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel
+from typing import Optional
 from starlette.responses import FileResponse
 
 
@@ -14,6 +15,7 @@ from open_webui.utils.misc import get_gravatar_url
 from open_webui.utils.pdf_generator import PDFGenerator
 from open_webui.utils.auth import get_admin_user, get_verified_user
 from open_webui.utils.code_interpreter import execute_code_jupyter
+from open_webui.utils.code_interpreter import add_cell_to_jupyter_notebook
 from open_webui.env import SRC_LOG_LEVELS
 
 
@@ -71,6 +73,44 @@ async def execute_code(
             detail="Code execution engine not supported",
         )
 
+class JupyterCodeSaveForm(BaseModel):
+    code: str
+    jupyter_notebook_filename: str = "Untitled.ipynb"
+    output: Optional[dict] = None
+
+@router.post("/code/jupyter-save")
+async def save_code_to_jupyter(
+    request: Request, 
+    form_data: JupyterCodeSaveForm,
+    user=Depends(get_verified_user)
+):
+    """Save code to Jupyter notebook"""
+    if request.app.state.config.CODE_EXECUTION_ENGINE == "jupyter":
+        try:
+            result = await add_cell_to_jupyter_notebook(
+                request.app.state.config.CODE_EXECUTION_JUPYTER_URL,
+                form_data.code,
+                form_data.jupyter_notebook_filename,
+                (
+                    request.app.state.config.CODE_EXECUTION_JUPYTER_AUTH_TOKEN
+                    if request.app.state.config.CODE_EXECUTION_JUPYTER_AUTH == "token"
+                    else None
+                ),
+                (
+                    request.app.state.config.CODE_EXECUTION_JUPYTER_AUTH_PASSWORD
+                    if request.app.state.config.CODE_EXECUTION_JUPYTER_AUTH == "password"
+                    else None
+                ),
+                form_data.output,
+            )
+            return {"success": True, "message": "Code saved to notebook"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Jupyter engine not configured",
+        )
 
 class MarkdownForm(BaseModel):
     md: str

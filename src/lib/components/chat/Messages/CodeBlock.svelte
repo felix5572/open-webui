@@ -15,6 +15,7 @@
 	import SvgPanZoom from '$lib/components/common/SVGPanZoom.svelte';
 	import { config } from '$lib/stores';
 	import { executeCode } from '$lib/apis/utils';
+	import { saveCodeToJupyterNotebook } from '$lib/apis/utils';
 	import { toast } from 'svelte-sonner';
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
 	import ChevronUpDown from '$lib/components/icons/ChevronUpDown.svelte';
@@ -44,6 +45,10 @@
 	export let editorClassName = '';
 	export let stickyButtonsClassName = 'top-0';
 
+	let jupyterNotebookFilename = localStorage.getItem('jupyter_notebook_filename') || 'openwebui.ipynb';
+	// Auto Save: Default true, automatically turns off after first save/execution
+	let jupyterAutoSaveEnabled = localStorage.getItem('jupyter_auto_save_enabled') !== 'false';
+
 	let pyodideWorker = null;
 
 	let _code = '';
@@ -56,6 +61,7 @@
 	};
 
 	let _token = null;
+	let output = null;
 
 	let mermaidHtml = null;
 
@@ -78,11 +84,29 @@
 		saved = true;
 
 		code = _code;
-		onSave(code);
+		if ($config?.code?.engine === 'jupyter') {
+			localStorage.setItem('jupyter_notebook_filename', jupyterNotebookFilename);
+			localStorage.setItem('jupyter_auto_save_enabled', jupyterAutoSaveEnabled.toString());
+			
+			// Save to Jupyter notebook via API (with results if available)
+			try {
+				toast.info(`Saving code to notebook: ${jupyterNotebookFilename}`);
+				
+				// Use last execution output if available
+				saveCodeToJupyterNotebook(localStorage.token, code, jupyterNotebookFilename, output);
+				toast.success(`Code successfully added to ${jupyterNotebookFilename}`);
+				jupyterAutoSaveEnabled = false;
+			} catch (error) {
+				toast.error(`Failed to save to ${jupyterNotebookFilename}: ${error.message || error}`);
+			}
+		} else {
+			// Fallback to original onSave callback for non-Jupyter engines
+			onSave(code);
+		}
 
 		setTimeout(() => {
 			saved = false;
-		}, 1000);
+		}, 10000);
 	};
 
 	const copyCode = async () => {
@@ -141,7 +165,7 @@
 		executing = true;
 
 		if ($config?.code?.engine === 'jupyter') {
-			const output = await executeCode(localStorage.token, code).catch((error) => {
+			output = await executeCode(localStorage.token, code).catch((error) => {
 				toast.error(`${error}`);
 				return null;
 			});
@@ -206,6 +230,25 @@
 				}
 
 				output['stderr'] && (stderr = output['stderr']);
+			}
+
+			// Auto-save to notebook after execution if enabled
+			if (jupyterAutoSaveEnabled && $config?.code?.engine === 'jupyter') {
+				try {
+					await saveCodeToJupyterNotebook(
+						localStorage.token, 
+						code, 
+						jupyterNotebookFilename, 
+						output
+					);
+					toast.success('Code and results auto-saved to notebook');
+					
+					// Auto-disable Auto Save after first execution
+					jupyterAutoSaveEnabled = false;
+					localStorage.setItem('jupyter_auto_save_enabled', jupyterAutoSaveEnabled.toString());
+				} catch (error) {
+					console.error('Auto-save failed:', error);
+				}
 			}
 
 			executing = false;
@@ -496,6 +539,40 @@
 						>
 							{saved ? $i18n.t('Saved') : $i18n.t('Save')}
 						</button>
+					{/if}
+
+					{#if $config?.code?.engine === 'jupyter'}
+						<div class="flex items-center gap-1">
+							<!-- Auto-save toggle -->
+							<label class="flex items-center gap-1 cursor-pointer">
+								<input
+									type="checkbox"
+									bind:checked={jupyterAutoSaveEnabled}
+									on:change={() => {
+										localStorage.setItem('jupyter_auto_save_enabled', jupyterAutoSaveEnabled.toString());
+									}}
+									class="w-3 h-3"
+								/>
+								<span class="text-xs">Auto Save to cell</span>
+							</label>
+							
+							<!-- Notebook filename input -->
+							<input
+								bind:value={jupyterNotebookFilename}
+								on:keydown={(e) => {
+									if (e.key === 'Enter') {
+										localStorage.setItem('jupyter_notebook_filename', jupyterNotebookFilename);
+										e.target.blur();
+									}
+								}}
+								on:blur={() => {
+									localStorage.setItem('jupyter_notebook_filename', jupyterNotebookFilename);
+								}}
+								class="text-xs px-1.5 py-0.5 w-24 bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition"
+								placeholder="notebook.ipynb"
+								title="Notebook filename"
+							/>
+						</div>
 					{/if}
 
 					<button

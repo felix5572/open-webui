@@ -91,6 +91,42 @@ export const formatPythonCode = async (token: string, code: string) => {
 	return res;
 };
 
+export const saveCodeToJupyterNotebook = async (token: string, code: string, jupyterNotebookFilename: string, output: any = null) => {
+    let error = null;
+
+    const res = await fetch(`${WEBUI_API_BASE_URL}/utils/code/jupyter-save`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            code: code,
+            jupyter_notebook_filename: jupyterNotebookFilename,
+            output: output
+        })
+    })
+        .then(async (res) => {
+            if (!res.ok) throw await res.json();
+            return res.json();
+        })
+        .catch((err) => {
+            console.error(err);
+            error = err;
+            if (err.detail) {
+                error = err.detail;
+            }
+            return null;
+        });
+
+    if (error) {
+        throw error;
+    }
+
+    return res;
+};
+
+
 export const downloadChatAsPDF = async (token: string, title: string, messages: object[]) => {
 	let error = null;
 
