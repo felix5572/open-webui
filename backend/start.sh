@@ -71,12 +71,15 @@ fi
 
 PYTHON_CMD=$(command -v python3 || command -v python)
 
-# Initialize data directory if empty (first startup with volume mount)
-DATA_DIR="${DATA_DIR:-/app/backend/data}"
-if [ ! -f "$DATA_DIR/webui.db" ] && [ -f "./data/webui.db" ]; then
-  echo "Data directory is empty, copying initial data from image..."
+# Check data directory
+echo "Using data directory: $DATA_DIR"
+
+if [ -f "$DATA_DIR/webui.db" ]; then
+  echo "Existing database found, using persistent data"
+else
+  echo "No existing database, copying initial data..."
   cp -r ./data/* "$DATA_DIR/"
-  echo "Copied initial data successfully"
+  echo "Initial data copied to $DATA_DIR"
 fi
 
 WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec "$PYTHON_CMD" -m uvicorn open_webui.main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*' --workers "${UVICORN_WORKERS:-1}"
