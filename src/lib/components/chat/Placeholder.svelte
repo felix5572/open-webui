@@ -50,6 +50,7 @@
 
 	export let imageGenerationEnabled = false;
 	export let codeInterpreterEnabled = false;
+	export let chatMode: 'ask' | 'agent' = 'ask';
 	export let webSearchEnabled = false;
 
 	export let onSelect = (e) => {};
@@ -216,6 +217,7 @@
 					bind:imageGenerationEnabled
 					bind:codeInterpreterEnabled
 					bind:webSearchEnabled
+					bind:chatMode
 					bind:atSelectedModel
 					bind:showCommands
 					{toolServers}

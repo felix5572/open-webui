@@ -62,6 +62,15 @@
 		updateChatFolderIdById
 	} from '$lib/apis/chats';
 	import { generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import { 
+		generateAdkChatCompletion, 
+		createAdkSession,
+		convertAdkPartsToMarkup,
+		convertAdkActionsToMarkup,
+		isAdkResponseFinal,
+		DEFAULT_ADK_BASE_URL,
+		type AdkEvent 
+	} from '$lib/apis/adk';
 	import { processWeb, processWebSearch, processYoutubeVideo } from '$lib/apis/retrieval';
 	import { createOpenAITextStream } from '$lib/apis/streaming';
 	import { queryMemory } from '$lib/apis/memories';
@@ -126,6 +135,8 @@
 	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
 	let codeInterpreterEnabled = false;
+	let chatMode: 'ask' | 'agent' = 'ask';
+	let isAdkSessionInitialized = false;
 
 	let showCommands = false;
 
@@ -1396,6 +1407,115 @@
 		}
 	};
 
+	const adkEventHandler = async (adkEvent: AdkEvent, message: any, chatId: string) => {
+		console.log('ADK Event:', adkEvent);
+
+		// Handle errors
+		if (adkEvent.errorCode || adkEvent.errorMessage) {
+			message.error = {
+				content: adkEvent.errorMessage || `ADK Error: ${adkEvent.errorCode}`
+			};
+			return;
+		}
+
+		let contentUpdated = false;
+
+		// Extract and append content from ADK parts using expanded markup format
+		if (adkEvent.content?.parts) {
+			const contentToAdd = convertAdkPartsToMarkup(adkEvent.content.parts);
+			if (contentToAdd) {
+				message.content += contentToAdd;
+				contentUpdated = true;
+			}
+		}
+
+		// Extract and append actions using expanded markup format
+		if (adkEvent.actions) {
+			const actionsMarkup = convertAdkActionsToMarkup(adkEvent.actions);
+			if (actionsMarkup) {
+				message.content += actionsMarkup;
+				// contentUpdated = true;
+			}
+		}
+
+		// Only trigger haptic feedback and TTS if content was actually updated
+		if (contentUpdated) {
+			// Haptic feedback if enabled
+			if (navigator.vibrate && ($settings?.hapticFeedback ?? false)) {
+				navigator.vibrate(5);
+			}
+
+			// Emit chat event for TTS
+			const messageContentParts = getMessageContentParts(
+				removeAllDetails(message.content),
+				$config?.audio?.tts?.split_on ?? 'punctuation'
+			);
+			messageContentParts.pop();
+
+			// Dispatch only last sentence and make sure it hasn't been dispatched before
+			if (
+				messageContentParts.length > 0 &&
+				messageContentParts[messageContentParts.length - 1] !== message.lastSentence
+			) {
+				message.lastSentence = messageContentParts[messageContentParts.length - 1];
+				eventTarget.dispatchEvent(
+					new CustomEvent('chat', {
+						detail: {
+							id: message.id,
+							content: messageContentParts[messageContentParts.length - 1]
+						}
+					})
+				);
+			}
+		}
+
+		// Store complete ADK event data
+		message.adk_event = adkEvent;
+
+		// Update usage metadata if available
+		if (adkEvent.usageMetadata) {
+			message.usage = {
+				prompt_tokens: adkEvent.usageMetadata.promptTokenCount || 0,
+				completion_tokens: adkEvent.usageMetadata.candidatesTokenCount || 0,
+				total_tokens: adkEvent.usageMetadata.totalTokenCount || 0
+			};
+		}
+
+		// Update message in history
+		history.messages[message.id] = message;
+
+		// Check if response is complete
+		if (isAdkResponseFinal(adkEvent)) {
+			message.done = true;
+
+			// Auto-copy response if enabled
+			if ($settings.responseAutoCopy) {
+				copyToClipboard(message.content);
+			}
+
+			// Auto-playback if enabled
+			if ($settings.responseAutoPlayback && !$showCallOverlay) {
+				await tick();
+				document.getElementById(`speak-button-${message.id}`)?.click();
+			}
+
+			// Call completion handler
+			await chatCompletedHandler(
+				chatId,
+				message.model,
+				message.id,
+				createMessagesList(history, message.id)
+			);
+		}
+
+		await tick();
+
+		if (autoScroll) {
+			scrollToBottom();
+		}
+	};
+
+	
 	//////////////////////////
 	// Chat functions
 	//////////////////////////
@@ -1724,7 +1844,9 @@
 						})
 			}))
 			.filter((message) => message?.role === 'user' || message?.content?.trim());
-
+		
+		
+		const handleOpenAI = async () => {
 		const res = await generateOpenAIChatCompletion(
 			localStorage.token,
 			{
@@ -1837,6 +1959,71 @@
 				}
 			}
 		}
+		}
+
+		const handleADK = async () => {
+			try {
+				console.warn('handleADK', 'isAdkSessionInitialized', isAdkSessionInitialized);
+				console.warn('handleADK', 'chatId', $chatId);
+				console.warn('handleADK', 'user?.id', $user?.id);
+				console.warn('handleADK', 'localStorage.token', localStorage.token);
+				if (!isAdkSessionInitialized) {
+					const session = await createAdkSession(
+						DEFAULT_ADK_BASE_URL,
+						'abacus_agent',
+						$user?.id || 'openwebui_anonymous',
+						$chatId, 
+						localStorage.token
+					);
+					isAdkSessionInitialized = true;
+				}
+				const res = await generateAdkChatCompletion(
+					localStorage.token,
+					DEFAULT_ADK_BASE_URL,
+					{
+						session_id: $chatId,
+						newMessage: {
+							role: 'user',
+							parts: [
+							{
+								text: messages
+								.filter((m) => m.role === 'user')
+								.at(-1)
+								?.content || ''
+							}
+							]
+						},
+						streaming: true,
+						app_name: 'abacus_agent',
+						user_id: $user?.id || 'openwebui_anonymous'
+					},
+					(event) => adkEventHandler(event, responseMessage, _chatId) // 回调处理 ADK 事件
+				);
+
+				if (res?.error) {
+					// await handleADKError(res.error, responseMessage);
+					await handleOpenAIError(res.error, responseMessage);
+				}
+			} catch (error) {
+				console.error('ADK request failed:', error);
+				responseMessage.error = { content: error || 'ADK request failed' };
+				responseMessage.done = true;
+				history.messages[responseMessageId] = responseMessage;
+				history.currentId = responseMessageId;
+			}
+		}
+
+		switch (chatMode) {
+			case 'ask':
+				await handleOpenAI();
+				break;
+			case 'agent':
+				await handleADK();
+				break;
+			default:
+				console.warn(`Unknown chat mode: ${chatMode}`);
+		}
+
 
 		await tick();
 		scrollToBottom();
@@ -2326,6 +2513,7 @@
 									bind:imageGenerationEnabled
 									bind:codeInterpreterEnabled
 									bind:webSearchEnabled
+									bind:chatMode
 									bind:atSelectedModel
 									bind:showCommands
 									toolServers={$toolServers}
@@ -2382,6 +2570,7 @@
 									bind:imageGenerationEnabled
 									bind:codeInterpreterEnabled
 									bind:webSearchEnabled
+									bind:chatMode
 									bind:atSelectedModel
 									bind:showCommands
 									toolServers={$toolServers}

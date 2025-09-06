@@ -104,6 +104,7 @@
 	export let imageGenerationEnabled = false;
 	export let webSearchEnabled = false;
 	export let codeInterpreterEnabled = false;
+	export let chatMode: 'ask' | 'agent' = 'ask';
 
 	let showInputVariablesModal = false;
 	let inputVariables = {};
@@ -1848,6 +1849,17 @@
 														</button>
 													</Tooltip>
 												{/if}
+
+												<!-- Agent/Ask Mode Selector -->
+												<div class="flex items-center ml-2">
+													<select
+														bind:value={chatMode}
+														class="text-xs bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+													>
+														<option value="ask" class="bg-white dark:bg-gray-800">💬 Ask</option>
+														<option value="agent" class="bg-white dark:bg-gray-800">🤖 Agent</option>
+													</select>
+												</div>
 											</div>
 										{/if}
 									</div>

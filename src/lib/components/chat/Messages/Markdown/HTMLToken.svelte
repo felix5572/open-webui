@@ -121,6 +121,102 @@
 		{/if}
 	{:else if token.text.includes(`<source_id`)}
 		<Source {id} {token} onClick={onSourceClick} />
+	{:else if token.text.includes('<adk_function_call')}
+		{@const match = token.text.match(/<adk_function_call name="([^"]+)" id="([^"]+)" args='([^']+)'\s*\/>/)}
+		{@const functionName = match && match[1]}
+		{@const functionId = match && match[2]}
+		{@const functionArgs = match && JSON.parse(match[3])}
+		{#if functionName && functionId}
+			<div class="adk-function-call my-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+				<div class="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-medium text-sm">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+					</svg>
+					<span>🔧 Calling {functionName}</span>
+				</div>
+				<div class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+					<span class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">ID: {functionId}</span>
+				</div>
+				{#if functionArgs && Object.keys(functionArgs).length > 0}
+					<div class="mt-2 text-sm">
+						<div class="text-gray-600 dark:text-gray-400 text-xs mb-1">Parameters:</div>
+						<div class="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded border">
+							{#each Object.entries(functionArgs) as [key, value]}
+								<div><span class="text-blue-600 dark:text-blue-400">{key}:</span> <span class="text-gray-800 dark:text-gray-200">{JSON.stringify(value)}</span></div>
+							{/each}
+						</div>
+					</div>
+				{/if}
+			</div>
+		{/if}
+	{:else if token.text.includes('<adk_function_response')}
+		{@const match = token.text.match(/<adk_function_response name="([^"]+)" id="([^"]+)" result='([^']+)'\s*\/>/)}
+		{@const functionName = match && match[1]}
+		{@const functionId = match && match[2]}
+		{@const functionResult = match && JSON.parse(match[3])}
+		{#if functionName && functionId}
+			<div class="adk-function-response my-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+				<div class="flex items-center gap-2 text-green-700 dark:text-green-300 font-medium text-sm">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+					</svg>
+					<span>✅ {functionName} completed</span>
+				</div>
+				<div class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+					<span class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">ID: {functionId}</span>
+				</div>
+				{#if functionResult}
+					<div class="mt-2 text-sm">
+						<div class="text-gray-600 dark:text-gray-400 text-xs mb-1">Result:</div>
+						<div class="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded border overflow-x-auto">
+							<pre class="whitespace-pre-wrap">{JSON.stringify(functionResult, null, 2)}</pre>
+						</div>
+					</div>
+				{/if}
+			</div>
+		{/if}
+	{:else if token.text.includes('<adk_thought')}
+		{@const match = token.text.match(/<adk_thought signature="([^"]+)"\s*\/>/)}
+		{@const thoughtSignature = match && match[1]}
+		{#if thoughtSignature && ($settings?.showAdkThoughts ?? true)}
+			<details class="adk-thought my-2 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
+				<summary class="cursor-pointer text-purple-700 dark:text-purple-300 font-medium text-sm flex items-center gap-2">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+					</svg>
+					<span>🤔 AI Thinking Process</span>
+				</summary>
+				<div class="mt-2 text-xs text-gray-600 dark:text-gray-400">
+					<div class="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded border">
+						<div class="text-orange-600 dark:text-orange-400 mb-1">Encrypted Thought Signature:</div>
+						<div class="break-all text-gray-500 dark:text-gray-400">{thoughtSignature.substring(0, 100)}...</div>
+						<div class="text-xs text-gray-400 dark:text-gray-500 mt-1 italic">
+							This represents the AI's internal reasoning process during response generation.
+						</div>
+					</div>
+				</div>
+			</details>
+		{/if}
+	{:else if token.text.includes('<adk_action')}
+		{@const match = token.text.match(/<adk_action type="([^"]+)" data='([^']+)'\s*\/>/)}
+		{@const actionType = match && match[1]}
+		{@const actionData = match && JSON.parse(match[2])}
+		{#if actionType && actionData}
+			<div class="adk-action my-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+				<div class="flex items-center gap-2 text-green-700 dark:text-green-300 font-medium text-sm mb-2">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+					</svg>
+					<span>⚡ ADK Action: {actionType}</span>
+				</div>
+				<div class="text-xs text-gray-600 dark:text-gray-400">
+					<div class="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded border max-h-32 overflow-y-auto">
+						<pre class="whitespace-pre-wrap text-wrap">{JSON.stringify(actionData, null, 2)}</pre>
+					</div>
+				</div>
+			</div>
+		{/if}
 	{:else}
 		{@const br = token.text.match(/<br\s*\/?>/)}
 		{#if br}

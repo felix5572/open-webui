@@ -52,6 +52,7 @@
 	import { fade } from 'svelte/transition';
 	import { flyAndScale } from '$lib/utils/transitions';
 	import RegenerateMenu from './ResponseMessage/RegenerateMenu.svelte';
+	import type { AdkEvent } from '$lib/apis/adk';
 
 	interface MessageType {
 		id: string;
@@ -102,6 +103,12 @@
 			usage?: unknown;
 		};
 		annotation?: { type: string; rating: number };
+		
+		// google ADK Fields 
+		adk_user_id?: string;
+		adk_app_name?: string;
+		adk_session_id?: string;
+		adk_event?: AdkEvent;
 	}
 
 	export let chatId = '';
