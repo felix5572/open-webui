@@ -203,7 +203,8 @@ export const createAdkFunctionCallTag = (name: string, id: string, args: any): s
 	tag.setAttribute('id', id);
 	tag.setAttribute('args', JSON.stringify(args));
 	
-	return `\n${tag.outerHTML}\n`; // 保持原有换行格式
+	const serializer = new XMLSerializer();
+  	return `\n${serializer.serializeToString(tag)}\n`;
   };
 
 
@@ -215,7 +216,8 @@ export const createAdkFunctionCallTag = (name: string, id: string, args: any): s
 	tag.setAttribute('id', id);
 	tag.setAttribute('result', JSON.stringify(response));
 	
-	return `\n${tag.outerHTML}\n`;
+	const serializer = new XMLSerializer();
+  	return `\n${serializer.serializeToString(tag)}\n`;
   };
 
   export const createAdkThoughtTag = (signature: string): string => {
@@ -224,7 +226,8 @@ export const createAdkFunctionCallTag = (name: string, id: string, args: any): s
 	
 	tag.setAttribute('signature', signature);
 	
-	return `\n${tag.outerHTML}\n`;
+	const serializer = new XMLSerializer();
+  	return `\n${serializer.serializeToString(tag)}\n`;
   };
 
 export const convertAdkPartsToMarkup = (parts: NonNullable<AdkEvent['content']>['parts'] = []): string => {
