@@ -1851,16 +1851,26 @@
 												{/if}
 
 												<!-- Agent/Ask Mode Selector -->
-												<div class="flex items-center ml-2">
+												<div class="flex items-center gap-2 ml-2">
+													<!-- switch component -->
 													<label class="relative inline-flex items-center cursor-pointer">
 													  <input 
 														type="checkbox"
 														bind:checked={isAgentMode}
 														class="sr-only peer"
 													  >
-													  <div class="w-12 h-6 bg-gray-200 peer-checked:bg-blue-500 rounded-full flex items-center px-1 transition-colors">
-														<span class="text-xs" class:opacity-100={!isAgentMode} class:opacity-0={isAgentMode}>💬 Ask</span>
-														<span class="text-xs ml-auto" class:opacity-100={isAgentMode} class:opacity-0={!isAgentMode}>🤖 Agent</span>
+													  <div class="w-16 h-8 bg-gray-200 peer-checked:bg-blue-500 rounded-full flex items-center px-1.5 transition-colors duration-200">
+														<!-- icon and text -->
+														<span class="flex items-center gap-1 text-xs">
+														  <span class="transition-opacity duration-200" class:opacity-100={!isAgentMode} class:opacity-0={isAgentMode}>
+															💬 Ask
+														  </span>
+														  <span class="transition-opacity duration-200" class:opacity-100={isAgentMode} class:opacity-0={!isAgentMode}>
+															🤖 Agent
+														  </span>
+														</span>
+														<!-- slider -->
+														<div class={`absolute bg-white rounded-full h-6 w-6 shadow-md transform transition-transform duration-200 ${isAgentMode ? 'translate-x-7' : 'translate-x-0'}`}></div>
 													  </div>
 													</label>
 												</div>
