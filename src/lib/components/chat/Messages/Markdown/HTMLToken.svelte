@@ -18,6 +18,21 @@
 	} else {
 		html = null;
 	}
+
+  const parseAdkTag = (html: string) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const tag = doc.querySelector('adk_function_call, adk_function_response, adk_thought');
+    
+    if (!tag) return null;
+
+    return {
+      name: tag.getAttribute('name'),
+      id: tag.getAttribute('id'),
+      args: tag.getAttribute('args') && JSON.parse(tag.getAttribute('args')!),
+      result: tag.getAttribute('result') && JSON.parse(tag.getAttribute('result')!),
+      signature: tag.getAttribute('signature')
+    };
+  };
 </script>
 
 {#if token.type === 'html'}
@@ -122,10 +137,7 @@
 	{:else if token.text.includes(`<source_id`)}
 		<Source {id} {token} onClick={onSourceClick} />
 	{:else if token.text.includes('<adk_function_call')}
-		{@const match = token.text.match(/<adk_function_call name="([^"]+)" id="([^"]+)" args='([^']+)'\s*\/>/)}
-		{@const functionName = match && match[1]}
-		{@const functionId = match && match[2]}
-		{@const functionArgs = match && JSON.parse(match[3])}
+		{@const { name: functionName, id: functionId, args: functionArgs } = parseAdkTag(token.text) || {}}
 		{#if functionName && functionId}
 			<div class="adk-function-call my-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
 				<div class="flex items-center gap-2 text-blue-700 dark:text-blue-300 font-medium text-sm">
@@ -151,17 +163,14 @@
 			</div>
 		{/if}
 	{:else if token.text.includes('<adk_function_response')}
-		{@const match = token.text.match(/<adk_function_response name="([^"]+)" id="([^"]+)" result='([^']+)'\s*\/>/)}
-		{@const functionName = match && match[1]}
-		{@const functionId = match && match[2]}
-		{@const functionResult = match && JSON.parse(match[3])}
+		{@const { name: functionName, id: functionId, result: functionResult } = parseAdkTag(token.text) || {}}
 		{#if functionName && functionId}
 			<div class="adk-function-response my-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
 				<div class="flex items-center gap-2 text-green-700 dark:text-green-300 font-medium text-sm">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 					</svg>
-					<span>✅ {functionName} completed</span>
+					<span>✅ adk_function_response {functionName} completed</span>
 				</div>
 				<div class="mt-2 text-xs text-gray-600 dark:text-gray-400">
 					<span class="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">ID: {functionId}</span>
@@ -177,15 +186,14 @@
 			</div>
 		{/if}
 	{:else if token.text.includes('<adk_thought')}
-		{@const match = token.text.match(/<adk_thought signature="([^"]+)"\s*\/>/)}
-		{@const thoughtSignature = match && match[1]}
-		{#if thoughtSignature && ($settings?.showAdkThoughts ?? true)}
+		{@const { signature: thoughtSignature } = parseAdkTag(token.text) || {}}
+		{#if thoughtSignature}
 			<details class="adk-thought my-2 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
 				<summary class="cursor-pointer text-purple-700 dark:text-purple-300 font-medium text-sm flex items-center gap-2">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
 					</svg>
-					<span>🤔 AI Thinking Process</span>
+					<span>🤔 adk_thought AI Thinking Process</span>
 				</summary>
 				<div class="mt-2 text-xs text-gray-600 dark:text-gray-400">
 					<div class="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded border">

@@ -135,7 +135,7 @@
 	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
 	let codeInterpreterEnabled = false;
-	let chatMode: 'ask' | 'agent' = 'ask';
+	let isAgentMode = false;
 	let isAdkSessionInitialized = false;
 
 	let showCommands = false;
@@ -1408,7 +1408,7 @@
 	};
 
 	const adkEventHandler = async (adkEvent: AdkEvent, message: any, chatId: string) => {
-		console.log('ADK Event:', adkEvent);
+		console.warn('ADK Event:', adkEvent);
 
 		// Handle errors
 		if (adkEvent.errorCode || adkEvent.errorMessage) {
@@ -2013,15 +2013,10 @@
 			}
 		}
 
-		switch (chatMode) {
-			case 'ask':
-				await handleOpenAI();
-				break;
-			case 'agent':
-				await handleADK();
-				break;
-			default:
-				console.warn(`Unknown chat mode: ${chatMode}`);
+		if (isAgentMode) {
+			await handleADK();     // true执行ADK逻辑
+			} else {
+			await handleOpenAI();  // false执行OpenAI逻辑
 		}
 
 
@@ -2513,7 +2508,7 @@
 									bind:imageGenerationEnabled
 									bind:codeInterpreterEnabled
 									bind:webSearchEnabled
-									bind:chatMode
+									bind:isAgentMode
 									bind:atSelectedModel
 									bind:showCommands
 									toolServers={$toolServers}
@@ -2570,7 +2565,7 @@
 									bind:imageGenerationEnabled
 									bind:codeInterpreterEnabled
 									bind:webSearchEnabled
-									bind:chatMode
+									bind:isAgentMode
 									bind:atSelectedModel
 									bind:showCommands
 									toolServers={$toolServers}

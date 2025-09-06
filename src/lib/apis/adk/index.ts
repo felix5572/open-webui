@@ -195,6 +195,38 @@ export const extractTextFromAdkParts = (parts: NonNullable<AdkEvent['content']>[
 /**
  * Convert ADK parts to expanded markup format
  */
+export const createAdkFunctionCallTag = (name: string, id: string, args: any): string => {
+	const doc = new DOMParser().parseFromString('', 'text/html');
+	const tag = doc.createElement('adk_function_call');
+	
+	tag.setAttribute('name', name);
+	tag.setAttribute('id', id);
+	tag.setAttribute('args', JSON.stringify(args));
+	
+	return `\n${tag.outerHTML}\n`; // 保持原有换行格式
+  };
+
+
+  export const createAdkFunctionResponseTag = (name: string, id: string, response: any): string => {
+	const doc = new DOMParser().parseFromString('', 'text/html');
+	const tag = doc.createElement('adk_function_response');
+	
+	tag.setAttribute('name', name);
+	tag.setAttribute('id', id);
+	tag.setAttribute('result', JSON.stringify(response));
+	
+	return `\n${tag.outerHTML}\n`;
+  };
+
+  export const createAdkThoughtTag = (signature: string): string => {
+	const doc = new DOMParser().parseFromString('', 'text/html');
+	const tag = doc.createElement('adk_thought');
+	
+	tag.setAttribute('signature', signature);
+	
+	return `\n${tag.outerHTML}\n`;
+  };
+
 export const convertAdkPartsToMarkup = (parts: NonNullable<AdkEvent['content']>['parts'] = []): string => {
 	let content = '';
 	
@@ -205,15 +237,23 @@ export const convertAdkPartsToMarkup = (parts: NonNullable<AdkEvent['content']>[
 			
 		} else if (part.functionCall) {
 			// Function call - convert to custom markup
-			content += `\n<adk_function_call name="${part.functionCall.name}" id="${part.functionCall.id}" args='${JSON.stringify(part.functionCall.args)}' />\n`;
+			content += createAdkFunctionCallTag(
+				part.functionCall.name,
+				part.functionCall.id,
+				part.functionCall.args
+			  );
 			
 		} else if (part.functionResponse) {
 			// Function response - convert to custom markup
-			content += `\n<adk_function_response name="${part.functionResponse.name}" id="${part.functionResponse.id}" result='${JSON.stringify(part.functionResponse.response)}' />\n`;
+			content += createAdkFunctionResponseTag(
+				part.functionResponse.name,
+				part.functionResponse.id,
+				part.functionResponse.response
+			  );
 			
 		} else if (part.thoughtSignature) {
 			// AI thinking process - convert to custom markup
-			content += `\n<adk_thought signature="${part.thoughtSignature}" />\n`;
+			content += createAdkThoughtTag(part.thoughtSignature);
 		}
 	}
 	

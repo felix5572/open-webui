@@ -104,7 +104,7 @@
 	export let imageGenerationEnabled = false;
 	export let webSearchEnabled = false;
 	export let codeInterpreterEnabled = false;
-	export let chatMode: 'ask' | 'agent' = 'ask';
+	export let isAgentMode = false;
 
 	let showInputVariablesModal = false;
 	let inputVariables = {};
@@ -1852,13 +1852,17 @@
 
 												<!-- Agent/Ask Mode Selector -->
 												<div class="flex items-center ml-2">
-													<select
-														bind:value={chatMode}
-														class="text-xs bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-													>
-														<option value="ask" class="bg-white dark:bg-gray-800">💬 Ask</option>
-														<option value="agent" class="bg-white dark:bg-gray-800">🤖 Agent</option>
-													</select>
+													<label class="relative inline-flex items-center cursor-pointer">
+													  <input 
+														type="checkbox"
+														bind:checked={isAgentMode}
+														class="sr-only peer"
+													  >
+													  <div class="w-12 h-6 bg-gray-200 peer-checked:bg-blue-500 rounded-full flex items-center px-1 transition-colors">
+														<span class="text-xs" class:opacity-100={!isAgentMode} class:opacity-0={isAgentMode}>💬 Ask</span>
+														<span class="text-xs ml-auto" class:opacity-100={isAgentMode} class:opacity-0={!isAgentMode}>🤖 Agent</span>
+													  </div>
+													</label>
 												</div>
 											</div>
 										{/if}
