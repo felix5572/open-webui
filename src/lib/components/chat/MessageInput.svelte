@@ -1852,20 +1852,31 @@
 
 												<!-- Agent/Ask Mode Selector -->
 												<div class="flex items-center gap-2 ml-2">
-													<label class="relative inline-flex items-center cursor-pointer">
-													  <input 
-														type="checkbox"
-														bind:checked={isAgentMode}
-														class="sr-only peer"
-													  >
-													  <div class="w-11 h-6 bg-gray-200 peer-checked:bg-blue-500 rounded-full relative transition-colors duration-200">
-														<div class={`absolute bg-white rounded-full h-5 w-5 top-0.5 shadow-md transform transition-transform duration-200 ${isAgentMode ? 'translate-x-5' : 'translate-x-0.5'}`}></div>
+													<button 
+													  type="button"
+													  class="relative inline-flex items-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-full"
+													  on:click={() => isAgentMode = !isAgentMode}
+													  aria-label={isAgentMode ? 'Switch to Ask mode' : 'Switch to Agent mode'}
+													>
+													  <!-- Background track -->
+													  <div class="w-32 h-8 bg-gray-200 rounded-full relative transition-colors duration-200">
+														<!-- Left fixed label (Ask) -->
+														<div class="absolute left-2 top-1 bottom-1 flex items-center text-xs font-medium text-gray-600">
+														  💬 Ask
+														</div>
+														
+														<!-- Right fixed label (Agent) -->
+														<div class="absolute right-2 top-1 bottom-1 flex items-center text-xs font-medium text-gray-600">
+														  🤖 Agent
+														</div>
+														
+														<!-- Sliding white background block -->
+														<div class={`absolute bg-white rounded-full h-6 w-14 top-1 shadow-sm transform transition-transform duration-200 ${
+														  isAgentMode ? 'translate-x-16' : 'translate-x-1'
+														}`}></div>
 													  </div>
-													</label>
-													<span class="text-sm font-medium">
-													  {isAgentMode ? '🤖 Agent' : '💬 Ask'}
-													</span>
-												</div>
+													</button>
+												  </div>
 											</div>
 										{/if}
 									</div>
