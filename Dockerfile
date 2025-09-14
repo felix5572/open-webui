@@ -3,7 +3,7 @@
 # use build args in the docker build command with --build-arg="BUILDARG=true"
 ARG USE_CUDA=false
 ARG USE_OLLAMA=false
-ARG USE_SLIM=false
+ARG USE_SLIM=true
 ARG USE_PERMISSION_HARDENING=false
 # Tested with cu117 for CUDA 11 and cu121 for CUDA 12 (default)
 ARG USE_CUDA_VER=cu128
@@ -11,7 +11,9 @@ ARG USE_CUDA_VER=cu128
 # Leaderboard: https://huggingface.co/spaces/mteb/leaderboard 
 # for better performance and multilangauge support use "intfloat/multilingual-e5-large" (~2.5GB) or "intfloat/multilingual-e5-base" (~1.5GB)
 # IMPORTANT: If you change the embedding model (sentence-transformers/all-MiniLM-L6-v2) and vice versa, you aren't able to use RAG Chat with your previous documents loaded in the WebUI! You need to re-embed them.
+# ARG USE_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ARG USE_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+
 ARG USE_RERANKING_MODEL=""
 
 # Tiktoken encoding name; models to use can be found at https://huggingface.co/models?library=tiktoken
@@ -78,21 +80,23 @@ ENV OPENAI_API_KEY="" \
     ANONYMIZED_TELEMETRY=false
 
 #### Other models #########################################################
-## whisper TTS model settings ##
+# whisper TTS model settings ##
 ENV WHISPER_MODEL="base" \
-    WHISPER_MODEL_DIR="/app/backend/data/cache/whisper/models"
+    WHISPER_MODEL_DIR="/workplace/public/openwebui/backend/data/cache/whisper/models"
 
 ## RAG Embedding model settings ##
 ENV RAG_EMBEDDING_MODEL="$USE_EMBEDDING_MODEL_DOCKER" \
-    RAG_RERANKING_MODEL="$USE_RERANKING_MODEL_DOCKER" \
-    SENTENCE_TRANSFORMERS_HOME="/app/backend/data/cache/embedding/models"
+    # RAG_RERANKING_MODEL="$USE_RERANKING_MODEL_DOCKER" \
+    SENTENCE_TRANSFORMERS_HOME="/workplace/public/openwebui/backend/data/cache/embedding/models"
+    # SENTENCE_TRANSFORMERS_HOME="/app/backend/data/cache/embedding/models"
+    
 
-## Tiktoken model settings ##
+# Tiktoken model settings ##
 ENV TIKTOKEN_ENCODING_NAME="cl100k_base" \
-    TIKTOKEN_CACHE_DIR="/app/backend/data/cache/tiktoken"
+    TIKTOKEN_CACHE_DIR="/workplace/public/openwebui/backend/data/cache/tiktoken"
 
-## Hugging Face download cache ##
-ENV HF_HOME="/app/backend/data/cache/embedding/models"
+# Hugging Face download cache ##
+ENV HF_HOME="/workplace/public/openwebui/backend/data/cache/embedding/models"
 
 ## Torch Extensions ##
 # ENV TORCH_EXTENSIONS_DIR="/.cache/torch_extensions"
