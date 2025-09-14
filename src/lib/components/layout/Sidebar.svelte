@@ -695,7 +695,7 @@
 			? `ml-[4.5rem] md:ml-0 `
 			: ' transition-all duration-300 '} shrink-0 text-gray-900 dark:text-gray-200 text-sm fixed top-0 left-0 overflow-x-hidden
         "
-		transition:slide={{ duration: 200, axis: 'x' }}
+		transition:slide={{ duration: 250, axis: 'x' }}
 		data-state={$showSidebar}
 	>
 		<div
@@ -1025,24 +1025,26 @@
 					{/if}
 
 					{#if folders}
-						<Folders
-							{folders}
-							{shiftKey}
-							onDelete={(folderId) => {
-								selectedFolder.set(null);
-								initChatList();
-							}}
-							on:update={() => {
-								initChatList();
-							}}
-							on:import={(e) => {
-								const { folderId, items } = e.detail;
-								importChatHandler(items, false, folderId);
-							}}
-							on:change={async () => {
-								initChatList();
-							}}
-						/>
+						<div class="mb-1">
+							<Folders
+								{folders}
+								{shiftKey}
+								onDelete={(folderId) => {
+									selectedFolder.set(null);
+									initChatList();
+								}}
+								on:update={() => {
+									initChatList();
+								}}
+								on:import={(e) => {
+									const { folderId, items } = e.detail;
+									importChatHandler(items, false, folderId);
+								}}
+								on:change={async () => {
+									initChatList();
+								}}
+							/>
+						</div>
 					{/if}
 
 					<div class=" flex-1 flex flex-col overflow-y-auto scrollbar-hidden">

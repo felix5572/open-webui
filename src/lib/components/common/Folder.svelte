@@ -138,15 +138,15 @@
 		>
 			<!-- svelte-ignore a11y-no-static-element-interactions -->
 			<div
-				class="w-full group rounded-md relative flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 transition"
+				class="w-full group rounded-lg relative flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-500 transition"
 			>
 				<button class="w-full py-1.5 pl-2 flex items-center gap-1.5 text-xs font-medium">
 					{#if chevron}
-						<div class="text-gray-300 dark:text-gray-600">
+						<div class="text-gray-300 dark:text-gray-600 p-[1px]">
 							{#if open}
-								<ChevronDown className=" size-3" strokeWidth="2.5" />
+								<ChevronDown className=" size-3.5" strokeWidth="2.5" />
 							{:else}
-								<ChevronRight className=" size-3" strokeWidth="2.5" />
+								<ChevronRight className=" size-3.5" strokeWidth="2.5" />
 							{/if}
 						</div>
 					{/if}
