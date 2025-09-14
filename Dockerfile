@@ -3,7 +3,7 @@
 # use build args in the docker build command with --build-arg="BUILDARG=true"
 ARG USE_CUDA=false
 ARG USE_OLLAMA=false
-ARG USE_SLIM=false
+ARG USE_SLIM=true
 ARG USE_PERMISSION_HARDENING=false
 # Tested with cu117 for CUDA 11 and cu121 for CUDA 12 (default)
 ARG USE_CUDA_VER=cu128
@@ -80,19 +80,19 @@ ENV OPENAI_API_KEY="" \
 #### Other models #########################################################
 ## whisper TTS model settings ##
 ENV WHISPER_MODEL="base" \
-    WHISPER_MODEL_DIR="/app/backend/data/cache/whisper/models"
+    WHISPER_MODEL_DIR="/workplace/public/openwebui/backend/data/cache/whisper/models"
 
 ## RAG Embedding model settings ##
 ENV RAG_EMBEDDING_MODEL="$USE_EMBEDDING_MODEL_DOCKER" \
     RAG_RERANKING_MODEL="$USE_RERANKING_MODEL_DOCKER" \
-    SENTENCE_TRANSFORMERS_HOME="/app/backend/data/cache/embedding/models"
+    SENTENCE_TRANSFORMERS_HOME="/workplace/public/openwebui/backend/data/cache/embedding/models"
 
 ## Tiktoken model settings ##
 ENV TIKTOKEN_ENCODING_NAME="cl100k_base" \
-    TIKTOKEN_CACHE_DIR="/app/backend/data/cache/tiktoken"
+    TIKTOKEN_CACHE_DIR="/workplace/public/openwebui/backend/data/cache/tiktoken"
 
 ## Hugging Face download cache ##
-ENV HF_HOME="/app/backend/data/cache/embedding/models"
+ENV HF_HOME="/workplace/public/openwebui/backend/data/cache/embedding/models"
 
 ## Torch Extensions ##
 # ENV TORCH_EXTENSIONS_DIR="/.cache/torch_extensions"
