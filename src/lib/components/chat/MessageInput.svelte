@@ -1721,7 +1721,7 @@
 											</div>
 										</InputMenu>
 
-										{#if $_user && (showToolsButton || (toggleFilters && toggleFilters.length > 0) || showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton || true )} # always show the buttons
+										{#if $_user && (showToolsButton || (toggleFilters && toggleFilters.length > 0) || showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton || true )}
 											<div
 												class="flex self-center w-[1px] h-4 mx-1.5 bg-gray-50 dark:bg-gray-800"
 											/>
@@ -1879,7 +1879,7 @@
 														<div class={`absolute bg-white rounded-full h-6 w-14 top-1 shadow-sm transform transition-transform duration-200 ${
 														  isAgentMode ? 'translate-x-16' : 'translate-x-1'
 														}`}>
-														  {isAgentMode ? 'Agent' : 'Ask'}
+														  {isAgentMode ? '🤖 Agent' : '💬 Ask'}
 														</div>
 													  </div>
 													</button>
