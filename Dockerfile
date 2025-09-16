@@ -98,6 +98,7 @@ ENV HF_HOME="/public/openwebui/backend/data/cache/embedding/models"
 # ENV TORCH_EXTENSIONS_DIR="/.cache/torch_extensions"
 
 #### Other models ##########################################################
+ENV SHELL=/bin/bash
 
 WORKDIR /app/backend
 
@@ -139,14 +140,14 @@ RUN pip3 install --no-cache-dir uv && \
     else \
     pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu --no-cache-dir && \
     uv pip install --system -r requirements.txt --no-cache-dir && \
-    uv pip install jupyterlab && \
-    uv pip install git+https://github.com/felix5572/jupyter-openwebui.git && \
     if [ "$USE_SLIM" != "true" ]; then \
     python -c "import os; from sentence_transformers import SentenceTransformer; SentenceTransformer(os.environ['RAG_EMBEDDING_MODEL'], device='cpu')" && \
     python -c "import os; from faster_whisper import WhisperModel; WhisperModel(os.environ['WHISPER_MODEL'], device='cpu', compute_type='int8', download_root=os.environ['WHISPER_MODEL_DIR'])"; \
     python -c "import os; import tiktoken; tiktoken.get_encoding(os.environ['TIKTOKEN_ENCODING_NAME'])"; \
     fi; \
     fi; \
+    uv pip install --system --no-cache-dir jupyterlab && \
+    uv pip install --system --no-cache-dir git+https://github.com/felix5572/jupyter-openwebui.git && \
     mkdir -p /app/backend/data && chown -R $UID:$GID /app/backend/data/ && \
     rm -rf /var/lib/apt/lists/*;
 
@@ -190,7 +191,7 @@ USER $UID:$GID
 ARG BUILD_HASH
 ENV WEBUI_BUILD_VERSION=${BUILD_HASH}
 ENV DOCKER=true
-ENV SHELL=/bin/bash
+
 
 WORKDIR /
 
