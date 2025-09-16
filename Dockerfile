@@ -98,7 +98,7 @@ ENV HF_HOME="/public/openwebui/backend/data/cache/embedding/models"
 # ENV TORCH_EXTENSIONS_DIR="/.cache/torch_extensions"
 
 #### Other models ##########################################################
-ENV SHELL=/bin/bash
+# ENV SHELL=/bin/bash
 
 WORKDIR /app/backend
 
