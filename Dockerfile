@@ -98,7 +98,7 @@ ENV HF_HOME="/public/openwebui/backend/data/cache/embedding/models"
 # ENV TORCH_EXTENSIONS_DIR="/.cache/torch_extensions"
 
 #### Other models ##########################################################
-# ENV SHELL=/bin/bash
+
 
 WORKDIR /app/backend
 
@@ -122,6 +122,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git build-essential pandoc gcc netcat-openbsd curl jq \
     procps grep lsof net-tools iproute2 dnsutils less psmisc findutils wget strace rsync vim-tiny htop tree \
+    # for jupyterlab jlpm
+    nodejs npm \
     python3-dev \
     ffmpeg libsm6 libxext6 \
     && rm -rf /var/lib/apt/lists/*
@@ -192,7 +194,7 @@ ARG BUILD_HASH
 ENV WEBUI_BUILD_VERSION=${BUILD_HASH}
 ENV DOCKER=true
 
-
+ENV SHELL=/bin/bash
 WORKDIR /
 
 CMD [ "bash", "-c", "cd /app/backend && start.sh"]
