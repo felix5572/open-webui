@@ -120,7 +120,7 @@ RUN chown -R $UID:$GID /app $HOME
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git build-essential pandoc gcc netcat-openbsd curl jq \
-    procps grep lsof net-tools iproute2 dnsutils less psmisc findutils wget strace \
+    procps grep lsof net-tools iproute2 dnsutils less psmisc findutils wget strace rsync \
     python3-dev \
     ffmpeg libsm6 libxext6 \
     && rm -rf /var/lib/apt/lists/*
