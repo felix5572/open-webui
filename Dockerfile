@@ -194,4 +194,4 @@ ENV SHELL=/bin/bash
 
 WORKDIR /
 
-CMD [ "bash", "cd /app/backend && start.sh"]
+CMD [ "bash", "-c", "cd /app/backend && start.sh"]
