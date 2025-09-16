@@ -197,4 +197,4 @@ ENV DOCKER=true
 ENV SHELL=/bin/bash
 WORKDIR /
 
-CMD [ "bash", "-c", "cd /app/backend && start.sh"]
+CMD [ "bash", "-c", "cd /app/backend && source ./start.sh"]
