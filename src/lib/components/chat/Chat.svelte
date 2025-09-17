@@ -134,7 +134,7 @@
 	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
 	let codeInterpreterEnabled = false;
-	let isAgentMode = false;
+	let isAgentMode = true;
 	let isAdkSessionInitialized = false;
 
 	let showCommands = false;

@@ -99,7 +99,7 @@
 	export let imageGenerationEnabled = false;
 	export let webSearchEnabled = false;
 	export let codeInterpreterEnabled = false;
-	export let isAgentMode = false;
+	export let isAgentMode = true;
 
 	let showInputVariablesModal = false;
 	let inputVariablesModalCallback = (variableValues) => {};
@@ -1879,7 +1879,7 @@
 														<div class={`absolute bg-white rounded-full h-6 w-14 top-1 shadow-sm transform transition-transform duration-200 ${
 														  isAgentMode ? 'translate-x-16' : 'translate-x-1'
 														}`}>
-														  {isAgentMode ? '🤖 Agent' : '💬 Ask'}
+														  {isAgentMode ? '🤖Adk' : '💬 Ask'}
 														</div>
 													  </div>
 													</button>

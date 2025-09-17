@@ -50,7 +50,7 @@
 
 	export let imageGenerationEnabled = false;
 	export let codeInterpreterEnabled = false;
-	export let isAgentMode = false;
+	export let isAgentMode = true;
 	export let webSearchEnabled = false;
 
 	export let onSelect = (e) => {};
