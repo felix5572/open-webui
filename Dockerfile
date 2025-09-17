@@ -149,7 +149,7 @@ RUN pip3 install --no-cache-dir uv && \
     fi; \
     fi; \
     uv pip install --system --no-cache-dir jupyterlab && \
-    uv pip install --system --no-cache-dir jupyter_openwebui==0.1.3 && \
+    uv pip install --system --no-cache-dir jupyter_openwebui==0.1.4 && \
     mkdir -p /app/backend/data && chown -R $UID:$GID /app/backend/data/ && \
     rm -rf /var/lib/apt/lists/*;
 
