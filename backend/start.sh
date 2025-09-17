@@ -77,7 +77,8 @@ echo "Using data directory: $DATA_DIR"
 if [ -f "$DATA_DIR/webui.db" ]; then
   echo "Existing database found, using persistent data"
 else
-  echo "No existing database, copying initial data..."
+  mkdir -p "$DATA_DIR"
+  echo "No existing database, creating initial data..."
   cp -r ./data/* "$DATA_DIR/"
   echo "Initial data copied to $DATA_DIR"
 fi

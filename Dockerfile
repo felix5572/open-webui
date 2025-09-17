@@ -121,7 +121,7 @@ RUN chown -R $UID:$GID /app $HOME
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git build-essential pandoc gcc netcat-openbsd curl jq \
-    procps grep lsof net-tools iproute2 dnsutils less psmisc findutils wget strace rsync vim-tiny htop tree \
+    procps grep lsof net-tools iproute2 dnsutils less psmisc findutils wget strace rsync vim-tiny htop tree sqlite3 \
     # for jupyterlab jlpm
     nodejs npm \
     python3-dev \
@@ -149,7 +149,7 @@ RUN pip3 install --no-cache-dir uv && \
     fi; \
     fi; \
     uv pip install --system --no-cache-dir jupyterlab && \
-    uv pip install --system --no-cache-dir jupyter_openwebui==0.1.1 && \
+    uv pip install --system --no-cache-dir jupyter_openwebui==0.1.2 && \
     mkdir -p /app/backend/data && chown -R $UID:$GID /app/backend/data/ && \
     rm -rf /var/lib/apt/lists/*;
 
