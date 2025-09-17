@@ -195,6 +195,6 @@ ENV WEBUI_BUILD_VERSION=${BUILD_HASH}
 ENV DOCKER=true
 
 ENV SHELL=/bin/bash
-# WORKDIR /
+WORKDIR /
 
-CMD [ "bash", "-c", "cd /app/backend && source ./start.sh"]
+CMD [ "bash", "-l", "-c", "cd /app/backend && source ./start.sh"]
