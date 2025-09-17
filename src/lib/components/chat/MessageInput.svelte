@@ -1867,12 +1867,12 @@
 													  <div class="w-32 h-8 bg-gray-200 rounded-full relative transition-colors duration-200">
 														<!-- Left fixed label (Ask) -->
 														<div class="absolute left-2 top-1 bottom-1 flex items-center text-xs font-medium text-gray-600">
-														  💬 Ask
+														  ask
 														</div>
 														
 														<!-- Right fixed label (Agent) -->
 														<div class="absolute right-2 top-1 bottom-1 flex items-center text-xs font-medium text-gray-600">
-														  🤖 Agent
+														  agent
 														</div>
 														
 														<!-- Sliding white background block -->
