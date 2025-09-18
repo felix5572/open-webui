@@ -568,7 +568,7 @@
 								on:blur={() => {
 									localStorage.setItem('jupyter_notebook_filename', jupyterNotebookFilename);
 								}}
-								class="text-xs px-1.5 py-0.5 w-24 bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition"
+								class="text-xs px-1.5 py-0.5 w-48 bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition"
 								placeholder="/workspace/code_open_webui.ipynb"
 								title="Notebook filename"
 							/>

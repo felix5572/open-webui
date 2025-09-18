@@ -280,7 +280,7 @@ class JupyterCodeExecuter:
         """Get existing notebook or create new one"""
         try:
             async with self.session.get(
-                f"api/contents/{jupyter_notebook_filename}", 
+                f"api/contents/{jupyter_notebook_filename.lstrip('/')}", 
                 params=self.params  # Reuse existing params
             ) as response:
                 if response.status == 200:
@@ -321,7 +321,7 @@ class JupyterCodeExecuter:
         }
         
         async with self.session.put(
-            f"api/contents/{jupyter_notebook_filename}",
+            f"api/contents/{jupyter_notebook_filename.lstrip('/')}",
             params=self.params,  # Reuse existing params and auth
             json=jupyter_notebook_data
         ) as response:
