@@ -126,6 +126,8 @@ RUN apt-get update && \
     nodejs npm \
     python3-dev \
     ffmpeg libsm6 libxext6 \
+    fonts-noto-cjk-extra fonts-wqy-zenhei \
+    && fc-cache -f -v \
     && rm -rf /var/lib/apt/lists/*
 
 # install python dependencies
@@ -153,6 +155,7 @@ RUN pip3 install --no-cache-dir uv && \
     uv pip install --system --no-cache-dir matplotlib  ipywidgets seaborn tqdm loguru  && \
     uv pip install --system --no-cache-dir google-adk cloudevents litellm  fastmcp python-jose[cryptography] && \
     uv pip install --system --no-cache-dir bohrium-open-sdk dpdispatcher dpdata && \
+    python -c "import matplotlib.pyplot as plt; plt.figure(); plt.close()" && \ 
     mkdir -p /app/backend/data && chown -R $UID:$GID /app/backend/data/ && \
     rm -rf /var/lib/apt/lists/*;
 
