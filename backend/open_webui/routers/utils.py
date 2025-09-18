@@ -75,7 +75,7 @@ async def execute_code(
 
 class JupyterCodeSaveForm(BaseModel):
     code: str
-    jupyter_notebook_filename: str = "Untitled.ipynb"
+    jupyter_notebook_filename: str = "/workspace/code_open_webui.ipynb"
     output: Optional[dict] = None
 
 @router.post("/code/jupyter-save")

@@ -150,6 +150,9 @@ RUN pip3 install --no-cache-dir uv && \
     fi; \
     uv pip install --system --no-cache-dir jupyterlab && \
     uv pip install --system --no-cache-dir jupyter_openwebui==0.1.5 && \
+    uv pip install --system --no-cache-dir matplotlib  ipywidgets seaborn tqdm loguru  && \
+    uv pip install --system --no-cache-dir google-adk cloudevents litellm  fastmcp python-jose[cryptography] && \
+    uv pip install --system --no-cache-dir bohrium-open-sdk dpdispatcher dpdata && \
     mkdir -p /app/backend/data && chown -R $UID:$GID /app/backend/data/ && \
     rm -rf /var/lib/apt/lists/*;
 

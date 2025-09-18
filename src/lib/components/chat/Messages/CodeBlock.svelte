@@ -45,7 +45,7 @@
 	export let editorClassName = '';
 	export let stickyButtonsClassName = 'top-0';
 
-	let jupyterNotebookFilename = localStorage.getItem('jupyter_notebook_filename') || 'openwebui.ipynb';
+	let jupyterNotebookFilename = localStorage.getItem('jupyter_notebook_filename') || '/workspace/code_open_webui.ipynb';
 	// Auto Save: Default true, automatically turns off after first save/execution
 	let jupyterAutoSaveEnabled = localStorage.getItem('jupyter_auto_save_enabled') !== 'false';
 
@@ -569,7 +569,7 @@
 									localStorage.setItem('jupyter_notebook_filename', jupyterNotebookFilename);
 								}}
 								class="text-xs px-1.5 py-0.5 w-24 bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition"
-								placeholder="notebook.ipynb"
+								placeholder="/workspace/code_open_webui.ipynb"
 								title="Notebook filename"
 							/>
 						</div>
