@@ -1,5 +1,5 @@
 import { WEBUI_BASE_URL } from '$lib/constants';
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 export const DEFAULT_ADK_BASE_URL = 'https://deepmodeling--deepmd-agent-services-deploy-agent-services.modal.run/abacus-agent';
 
 // import type { OpenAIRequest } from '$lib/apis/openai';
@@ -257,6 +257,9 @@ export const convertAdkPartsToMarkup = (parts: NonNullable<AdkEvent['content']>[
 		} else if (part.thoughtSignature) {
 			// AI thinking process - convert to custom markup
 			content += createAdkThoughtTag(part.thoughtSignature);
+		}
+		else {
+			content += "raw part from agent:\n" + JSON.stringify(part);
 		}
 	}
 	
