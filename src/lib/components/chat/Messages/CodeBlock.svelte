@@ -47,7 +47,7 @@
 
 	let jupyterNotebookFilename = localStorage.getItem('jupyter_notebook_filename') || '/workspace/code_open_webui.ipynb';
 	// Auto Save: Default true, automatically turns off after first save/execution
-	let jupyterAutoSaveEnabled = localStorage.getItem('jupyter_auto_save_enabled') !== 'false';
+	let jupyterAutoSaveEnabled = localStorage.getItem('jupyter_auto_save_enabled') == 'true';
 
 	let pyodideWorker = null;
 
@@ -111,7 +111,12 @@
 
 	const copyCode = async () => {
 		copied = true;
-		await copyToClipboard(_code);
+		try {
+			await navigator.clipboard.writeText(_code);
+			toast.success($i18n.t('Copied to clipboard '));
+		} catch (error) {
+			toast.error($i18n.t('Copied to clipboard failed'));
+		}
 
 		setTimeout(() => {
 			copied = false;
