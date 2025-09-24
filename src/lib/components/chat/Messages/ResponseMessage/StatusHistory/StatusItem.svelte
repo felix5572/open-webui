@@ -3,6 +3,7 @@
 	const i18n = getContext('i18n');
 	import WebSearchResults from '../WebSearchResults.svelte';
 	import Search from '$lib/components/icons/Search.svelte';
+	import { t } from 'i18next';
 
 	export let status = null;
 	export let done = false;
@@ -21,7 +22,7 @@
 						<!-- $i18n.t("Generating search query") -->
 						<!-- $i18n.t("No search query generated") -->
 						<!-- $i18n.t('Searched {{count}} sites') -->
-						{#if status?.description.includes('{{count}}')}
+						{#if status?.description?.includes('{{count}}')}
 							{$i18n.t(status?.description, {
 								count: (status?.urls || status?.items).length
 							})}
@@ -111,6 +112,10 @@
 					{:else if status.count === 1}
 						{$i18n.t('Retrieved 1 source')}
 					{:else}
+						<!-- {$i18n.t('Source')} -->
+						<!-- {$i18n.t('No source available')} -->
+						<!-- {$i18n.t('No distance available')} -->
+						<!-- {$i18n.t('Retrieved {{count}} sources')} -->
 						{$i18n.t('Retrieved {{count}} sources', {
 							count: status.count
 						})}

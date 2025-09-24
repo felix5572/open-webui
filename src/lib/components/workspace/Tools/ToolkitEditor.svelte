@@ -12,6 +12,7 @@
 	import LockClosed from '$lib/components/icons/LockClosed.svelte';
 	import AccessControlModal from '../common/AccessControlModal.svelte';
 	import { user } from '$lib/stores';
+	import CodeEditor from '$lib/components/common/CodeEditor.svelte';
 
 	let formElement = null;
 	let loading = false;

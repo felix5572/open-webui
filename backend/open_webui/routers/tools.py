@@ -43,6 +43,7 @@ router = APIRouter()
 async def get_tools(request: Request, user=Depends(get_verified_user)):
     tools = Tools.get_tools()
 
+    # OpenAPI Tool Servers
     for server in await get_tool_servers(request):
         tools.append(
             ToolUserResponse(
@@ -67,6 +68,29 @@ async def get_tools(request: Request, user=Depends(get_verified_user)):
                 }
             )
         )
+
+    # MCP Tool Servers
+    for server in request.app.state.config.TOOL_SERVER_CONNECTIONS:
+        if server.get("type", "openapi") == "mcp":
+            tools.append(
+                ToolUserResponse(
+                    **{
+                        "id": f"server:mcp:{server.get('info', {}).get('id')}",
+                        "user_id": f"server:mcp:{server.get('info', {}).get('id')}",
+                        "name": server.get("info", {}).get("name", "MCP Tool Server"),
+                        "meta": {
+                            "description": server.get("info", {}).get(
+                                "description", ""
+                            ),
+                        },
+                        "access_control": server.get("config", {}).get(
+                            "access_control", None
+                        ),
+                        "updated_at": int(time.time()),
+                        "created_at": int(time.time()),
+                    }
+                )
+            )
 
     if user.role == "admin" and BYPASS_ADMIN_ACCESS_CONTROL:
         # Admin can see all tools
@@ -462,8 +486,9 @@ async def update_tools_valves_by_id(
     try:
         form_data = {k: v for k, v in form_data.items() if v is not None}
         valves = Valves(**form_data)
-        Tools.update_tool_valves_by_id(id, valves.model_dump())
-        return valves.model_dump()
+        valves_dict = valves.model_dump(exclude_unset=True)
+        Tools.update_tool_valves_by_id(id, valves_dict)
+        return valves_dict
     except Exception as e:
         log.exception(f"Failed to update tool valves by id {id}: {e}")
         raise HTTPException(
@@ -538,10 +563,11 @@ async def update_tools_user_valves_by_id(
             try:
                 form_data = {k: v for k, v in form_data.items() if v is not None}
                 user_valves = UserValves(**form_data)
+                user_valves_dict = user_valves.model_dump(exclude_unset=True)
                 Tools.update_user_valves_by_id_and_user_id(
-                    id, user.id, user_valves.model_dump()
+                    id, user.id, user_valves_dict
                 )
-                return user_valves.model_dump()
+                return user_valves_dict
             except Exception as e:
                 log.exception(f"Failed to update user valves by id {id}: {e}")
                 raise HTTPException(
