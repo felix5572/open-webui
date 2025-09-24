@@ -1,6 +1,6 @@
 import { WEBUI_BASE_URL } from '$lib/constants';
 // import { v4 as uuidv4 } from 'uuid';
-export const DEFAULT_ADK_BASE_URL = 'https://deepmodeling--deepmd-agent-services-deploy-agent-services.modal.run/abacus-agent';
+export const DEFAULT_ADK_BASE_URL = process.env.DEFAULT_ADK_BASE_URL || 'https://deepmodeling--deepmd-run-service-deepmdagentservices-agent-app.modal.run';
 
 // import type { OpenAIRequest } from '$lib/apis/openai';
 

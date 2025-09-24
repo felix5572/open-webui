@@ -128,6 +128,7 @@ RUN apt-get update && \
     ffmpeg libsm6 libxext6 \
     fonts-noto-cjk-extra fonts-wqy-zenhei \
     && fc-cache -f -v \
+    && python3 -c "import matplotlib.font_manager; matplotlib.font_manager._load_fontmanager(try_read_cache=False)" \
     && rm -rf /var/lib/apt/lists/*
 
 # install python dependencies
