@@ -2020,7 +2020,7 @@
 							]
 						},
 						streaming: true,
-						app_name: 'abacus_agent',
+						app_name: 'deepmd_agent',
 						user_id: $user?.id || 'openwebui_anonymous'
 					},
 					(event) => adkEventHandler(event, responseMessage, _chatId) // 回调处理 ADK 事件
