@@ -126,6 +126,10 @@ export const saveCodeToJupyterNotebook = async (token: string, code: string, jup
     return res;
 };
 
+export const getAdkAppUrl = async () => {
+  const res = await fetch(`${WEBUI_API_BASE_URL}/utils/adk-app/get-url`);
+  return await res.text();
+}
 
 export const downloadChatAsPDF = async (token: string, title: string, messages: object[]) => {
 	let error = null;

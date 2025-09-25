@@ -173,3 +173,9 @@ async def download_litellm_config_yaml(user=Depends(get_admin_user)):
         media_type="application/octet-stream",
         filename="config.yaml",
     )
+
+@router.get("/adk-app/get-url")
+async def get_adk_app_url():
+    with open("/adk_app_url.txt", "r") as f:
+        url = f.read().strip()
+    return Response(content=url, media_type="text/plain")

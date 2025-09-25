@@ -49,6 +49,7 @@
 		processDetails,
 		removeAllDetails
 	} from '$lib/utils';
+	import { getAdkAppUrl } from '$lib/apis/utils';
 
 	import {
 		createNewChat,
@@ -108,6 +109,8 @@
 	const eventTarget = new EventTarget();
 	let controlPane;
 	let controlPaneComponent;
+	let adkBaseUrl = '';
+	$: if (!adkBaseUrl) getAdkAppUrl().then(url => adkBaseUrl = url);
 
 	let messageInput;
 
@@ -2033,7 +2036,7 @@
 				console.warn('handleADK', 'localStorage.token', localStorage.token);
 				if (!isAdkSessionInitialized) {
 					const session = await createAdkSession(
-						DEFAULT_ADK_BASE_URL,
+						adkBaseUrl || DEFAULT_ADK_BASE_URL,
 						DEFAULT_ADK_APP_NAME,
 						$user?.id || 'openwebui_anonymous',
 						$chatId, 
@@ -2043,7 +2046,7 @@
 				}
 				const res = await generateAdkChatCompletion(
 					localStorage.token,
-					DEFAULT_ADK_BASE_URL,
+					adkBaseUrl || DEFAULT_ADK_BASE_URL,
 					{
 						session_id: $chatId,
 						newMessage: {
