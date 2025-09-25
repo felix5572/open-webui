@@ -68,6 +68,7 @@
 		convertAdkActionsToMarkup,
 		isAdkResponseFinal,
 		DEFAULT_ADK_BASE_URL,
+		DEFAULT_ADK_APP_NAME,
 		type AdkEvent 
 	} from '$lib/apis/adk';
 	import { processWeb, processWebSearch, processYoutubeVideo } from '$lib/apis/retrieval';
@@ -2033,7 +2034,7 @@
 				if (!isAdkSessionInitialized) {
 					const session = await createAdkSession(
 						DEFAULT_ADK_BASE_URL,
-						'abacus_agent',
+						DEFAULT_ADK_APP_NAME,
 						$user?.id || 'openwebui_anonymous',
 						$chatId, 
 						localStorage.token
@@ -2057,7 +2058,7 @@
 							]
 						},
 						streaming: true,
-						app_name: 'deepmd_agent',
+						app_name: DEFAULT_ADK_APP_NAME,
 						user_id: $user?.id || 'openwebui_anonymous'
 					},
 					(event) => adkEventHandler(event, responseMessage, _chatId) // 回调处理 ADK 事件
@@ -2077,9 +2078,9 @@
 		}
 
 		if (isAgentMode) {
-			await handleADK();     // true执行ADK逻辑
+			await handleADK();     // true exec ADK logic
 			} else {
-			await handleOpenAI();  // false执行OpenAI逻辑
+			await handleOpenAI();  // false exec OpenAI logic
 		}
 
 
