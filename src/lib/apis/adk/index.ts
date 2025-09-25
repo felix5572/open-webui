@@ -1,7 +1,7 @@
 import { WEBUI_BASE_URL } from '$lib/constants';
 // import { v4 as uuidv4 } from 'uuid';
-export const DEFAULT_ADK_BASE_URL = process.env.DEFAULT_ADK_BASE_URL || 'https://deepmodeling--deepmd-run-service-deepmdagentservices-agent-app.modal.run';
-
+export const DEFAULT_ADK_BASE_URL = process.env.DEFAULT_ADK_BASE_URL || 'https://deepmodeling--deepmd-lammps-agent-services-agent-app.modal.run';
+export const DEFAULT_ADK_APP_NAME = process.env.DEFAULT_ADK_APP_NAME || 'deepmd_agent';
 // import type { OpenAIRequest } from '$lib/apis/openai';
 
 export interface AdkRequest {
@@ -158,7 +158,7 @@ export const generateAdkChatCompletion = async (
 
 export const createAdkSession = async (
     adkBaseUrl: string,
-    appName: string,  // 例如 "abacus_agent"
+    appName: string,  // 例如 "deepmd_agent"
     userId: string,   // 例如 "raw_test_user"
     sessionId: string, // 直接传入 Open WebUI 的 chatId
     token?: string    // 可选认证 token
