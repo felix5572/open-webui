@@ -111,6 +111,7 @@
 	let controlPaneComponent;
 	let adkBaseUrl = '';
 	$: if (!adkBaseUrl) getAdkAppUrl().then(url => adkBaseUrl = url);
+	let seenInvocations = new Map();
 
 	let messageInput;
 
@@ -1455,12 +1456,20 @@
 
 		let contentUpdated = false;
 
+
+
 		// Extract and append content from ADK parts using expanded markup format
 		if (adkEvent.content?.parts) {
-			const contentToAdd = convertAdkPartsToMarkup(adkEvent.content.parts);
-			if (contentToAdd) {
-				message.content += contentToAdd;
-				contentUpdated = true;
+			if (adkEvent.partial == false && seenInvocations.has(adkEvent.invocationId)) {
+				console.warn('adkEventHandler', 'seenInvocations', seenInvocations, adkEvent); // stream behavior for google adk /run_sse...
+			}
+			else {
+				seenInvocations.set(adkEvent.invocationId, true);
+				const contentToAdd = convertAdkPartsToMarkup(adkEvent.content.parts);
+				if (contentToAdd) {
+					message.content += contentToAdd;
+					contentUpdated = true;
+				}
 			}
 		}
 
@@ -2030,22 +2039,22 @@
 
 		const handleADK = async () => {
 			try {
-				console.warn('handleADK', 'isAdkSessionInitialized', isAdkSessionInitialized);
-				console.warn('handleADK', 'chatId', $chatId);
-				console.warn('handleADK', 'user?.id', $user?.id);
-				console.warn('handleADK', 'localStorage.token', localStorage.token);
+				console.log('handleADK', 'isAdkSessionInitialized', isAdkSessionInitialized);
+				console.log('handleADK', 'chatId', $chatId);
+				console.log('handleADK', 'user?.id', $user?.id);
+				console.log('handleADK', 'localStorage.token', localStorage.token); // openwebui token
 				if (!isAdkSessionInitialized) {
 					const session = await createAdkSession(
 						adkBaseUrl || DEFAULT_ADK_BASE_URL,
 						DEFAULT_ADK_APP_NAME,
-						$user?.id || 'openwebui_anonymous',
+						'default_unnamed_user' || $user?.id || 'openwebui_anonymous',
 						$chatId, 
-						localStorage.token
+						// localStorage.token // openwebui token not used 
 					);
 					isAdkSessionInitialized = true;
+					console.log('handleADK', 'createAdkSession success');
 				}
-				const res = await generateAdkChatCompletion(
-					localStorage.token,
+				const res = await generateAdkChatCompletion(		
 					adkBaseUrl || DEFAULT_ADK_BASE_URL,
 					{
 						session_id: $chatId,
@@ -2062,14 +2071,15 @@
 						},
 						streaming: true,
 						app_name: DEFAULT_ADK_APP_NAME,
-						user_id: $user?.id || 'openwebui_anonymous'
+						user_id: 'default_unnamed_user' || $user?.id || 'openwebui_anonymous'
 					},
+					'', //localStorage.token, // openwebui token not used here
 					(event) => adkEventHandler(event, responseMessage, _chatId) // 回调处理 ADK 事件
 				);
 
 				if (res?.error) {
 					// await handleADKError(res.error, responseMessage);
-					await handleOpenAIError(res.error, responseMessage);
+					// await handleOpenAIError(res.error, responseMessage);
 				}
 			} catch (error) {
 				console.error('ADK request failed:', error);

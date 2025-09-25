@@ -123,19 +123,19 @@ export interface AdkEvent {
  * Generate ADK chat completion with SSE streaming
  */
 export const generateAdkChatCompletion = async (
-	token: string = '',
 	adkBaseUrl: string,
 	body: AdkRequest,
+	token?: string,
     eventHandler?: (event: AdkEvent) => void
 ): Promise<Response> => {
-	console.warn('generateAdkChatCompletion url', `${adkBaseUrl}/run_sse`);
-	console.warn('generateAdkChatCompletion body', body);
-	console.warn('generateAdkChatCompletion token', token);
+	console.log('generateAdkChatCompletion url', `${adkBaseUrl}/run_sse`);
+	console.log('generateAdkChatCompletion body', body);
+	console.log('generateAdkChatCompletion token', token);
 	const res = await fetch(`${adkBaseUrl}/run_sse`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			// ...(token && { 'Authorization': `Bearer ${token}` })
+			...(token && { 'Authorization': `Bearer ${token}` })
 		},
 		body: JSON.stringify(body)
 	});
@@ -169,7 +169,7 @@ export const createAdkSession = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
+        ...(token && { 'Authorization': `Bearer ${token}` }) // openwebui token
       },
       body: JSON.stringify({}) // 空对象或其他初始化数据
     });
