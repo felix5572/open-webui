@@ -1572,9 +1572,7 @@
 														</div>
 													  </div>
 													</button>
-												  </div>
-											</div>
-										{/if}
+												</div>
 											{#if imageGenerationEnabled}
 												<Tooltip content={$i18n.t('Image')} placement="top">
 													<button
