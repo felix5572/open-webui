@@ -127,7 +127,7 @@ RUN apt-get update && \
     python3-dev \
     ffmpeg libsm6 libxext6 \
     fonts-noto-cjk-extra fonts-wqy-zenhei \
-    && fc-cache -f -v \
+    # && fc-cache -f -v \
     && rm -rf /var/lib/apt/lists/*
 
 # install python dependencies
@@ -156,9 +156,14 @@ RUN pip3 install --no-cache-dir uv && \
     uv pip install --system --no-cache-dir ase dpdata pymatgen && \
     uv pip install --system --no-cache-dir google-adk cloudevents litellm fastmcp python-jose[cryptography] modal && \
     uv pip install --system --no-cache-dir bohrium-open-sdk dpdispatcher dpdata && \
-    python -c "import matplotlib.font_manager; matplotlib.font_manager._load_fontmanager(try_read_cache=False)" && \
     mkdir -p /app/backend/data && chown -R $UID:$GID /app/backend/data/ && \
     rm -rf /var/lib/apt/lists/*;
+
+RUN mkdir -p /root/.config/matplotlib && \
+    echo "font.family: sans-serif" > /root/.config/matplotlib/matplotlibrc && \
+    echo "font.sans-serif: WenQuanYi Zen Hei, SimHei, DejaVu Sans" >> /root/.config/matplotlib/matplotlibrc && \
+    echo "axes.unicode_minus: False" >> /root/.config/matplotlib/matplotlibrc && \
+    rm -rf /root/.cache/matplotlib
 
 # Install Ollama if requested
 RUN if [ "$USE_OLLAMA" = "true" ]; then \
