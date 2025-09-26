@@ -180,6 +180,6 @@ async def get_adk_app_url():
         with open("/adk_app_url.txt", "r") as f:
             url = f.read().strip()
     except Exception as e:
-        log.exception(f"Error getting ADK app URL: {e}")
+        # log.exception(f"Error getting ADK app URL: {e}")
         url = 'https://deepmodeling--deepmd-lammps-agent-services-agent-app.modal.run'
     return Response(content=url, media_type="text/plain")

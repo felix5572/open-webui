@@ -64,7 +64,8 @@
 	import { generateOpenAIChatCompletion } from '$lib/apis/openai';
 	import { 
 		generateAdkChatCompletion, 
-		createAdkSession,
+		// createAdkSession,
+		checkOrCreateAdkSession,
 		convertAdkPartsToMarkup,
 		convertAdkActionsToMarkup,
 		isAdkResponseFinal,
@@ -109,9 +110,11 @@
 	const eventTarget = new EventTarget();
 	let controlPane;
 	let controlPaneComponent;
+
 	let adkBaseUrl = '';
 	$: if (!adkBaseUrl) getAdkAppUrl().then(url => adkBaseUrl = url);
 	let seenInvocations = new Map();
+	let adkKnownSessionId = new Map();
 
 	let messageInput;
 
@@ -167,6 +170,25 @@
 
 	$: if (chatIdProp) {
 		navigateHandler();
+		getAdkSessionId();
+	}
+
+	const getAdkSessionId = async () => {
+		if (!adkKnownSessionId.has($chatId)) {
+			const session_id = await checkOrCreateAdkSession(
+				adkBaseUrl || DEFAULT_ADK_BASE_URL,
+				DEFAULT_ADK_APP_NAME,
+				'default_unnamed_user' || $user?.id || 'openwebui_anonymous',
+				$chatId,
+				''// localStorage.token // openwebui token not used 
+			);
+			if (session_id) {
+				adkKnownSessionId.set(session_id, true);
+				console.log('handleADK', 'checkOrCreateAdkSession', session_id);
+			}
+		} else {
+			console.warn('handleADK', 'adkKnownSessionId', adkKnownSessionId.get($chatId));
+		}
 	}
 
 	const navigateHandler = async () => {
@@ -2043,17 +2065,23 @@
 				console.log('handleADK', 'chatId', $chatId);
 				console.log('handleADK', 'user?.id', $user?.id);
 				console.log('handleADK', 'localStorage.token', localStorage.token); // openwebui token
-				if (!isAdkSessionInitialized) {
-					const session = await createAdkSession(
+
+                if (!adkKnownSessionId.has($chatId)) {
+					const session_id = await checkOrCreateAdkSession(
 						adkBaseUrl || DEFAULT_ADK_BASE_URL,
 						DEFAULT_ADK_APP_NAME,
 						'default_unnamed_user' || $user?.id || 'openwebui_anonymous',
-						$chatId, 
+						$chatId,
 						// localStorage.token // openwebui token not used 
 					);
-					isAdkSessionInitialized = true;
-					console.log('handleADK', 'createAdkSession success');
+					if (session_id) {
+						adkKnownSessionId.set(session_id, true);
+					}
+				} else {
+					session_id = adkKnownSessionId.get($chatId);
+					console.log('handleADK', 'checkOrCreateAdkSession', session_id);
 				}
+
 				const res = await generateAdkChatCompletion(		
 					adkBaseUrl || DEFAULT_ADK_BASE_URL,
 					{

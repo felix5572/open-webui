@@ -152,6 +152,81 @@ export const generateAdkChatCompletion = async (
 	return res;
 };
 
+
+export const checkOrCreateAdkSession = async (
+    adkBaseUrl: string,
+    appName: string,
+    userId: string,
+    sessionId: string,
+    token?: string
+): Promise<string> => {
+    const url = `${adkBaseUrl}/apps/${appName}/users/${userId}/sessions/${sessionId}`;
+    
+    // 先尝试获取会话
+    const getRes = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+        }
+    });
+    
+    if (getRes.status === 200) {
+        return sessionId;
+    }
+    
+    if (getRes.status === 404) {
+        const createRes = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            },
+            body: JSON.stringify({})
+        });
+        
+        if (createRes.ok) {
+            return sessionId; // 创建成功后返回 sessionId
+        } else {
+            const errorText = await createRes.text();
+            throw new Error(`ADK session creation failed: ${createRes.status} - ${errorText}`);
+        }
+    }
+    
+    // 其他错误
+    throw new Error(`Unexpected response: ${getRes.status}`);
+};
+
+
+
+//
+
+export const checkAdkSession = async (
+    adkBaseUrl: string,
+    appName: string,
+    userId: string,
+    sessionId: string,
+    token?: string
+): Promise<boolean> => {
+    const url = `${adkBaseUrl}/apps/${appName}/users/${userId}/sessions/${sessionId}`;
+    
+    try {
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            }
+        });
+        
+        return res.ok;
+    } catch (error) {
+        console.error('ADK session check failed:', error);
+        return false;
+    }
+};
+
+
 /**
  * Create ADK session
  */
