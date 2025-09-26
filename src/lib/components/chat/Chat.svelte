@@ -1854,6 +1854,7 @@
 	};
 
 	const sendMessageSocket = async (model, _messages, _history, responseMessageId, _chatId) => {
+		console.log('sendMessageSocket - isAgentMode:', isAgentMode);
 		const responseMessage = _history.messages[responseMessageId];
 		const userMessage = _history.messages[responseMessage.parentId];
 
@@ -2118,12 +2119,11 @@
 			}
 		}
 
-		if (isAgentMode) {
-			await handleADK();     // true exec ADK logic
+		if (isAgentMode === false) {
+			await handleOpenAI();
 			} else {
-			await handleOpenAI();  // false exec OpenAI logic
-		}
-
+			await  handleADK(); 
+			}
 
 		await tick();
 		scrollToBottom();
