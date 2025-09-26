@@ -163,19 +163,19 @@ export const checkOrCreateAdkSession = async (
     const url = `${adkBaseUrl}/apps/${appName}/users/${userId}/sessions/${sessionId}`;
     
     // 先尝试获取会话
-    const getRes = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` })
-        }
-    });
+    // const getRes = await fetch(url, {
+    //     method: 'GET',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         ...(token && { 'Authorization': `Bearer ${token}` })
+    //     }
+    // });
     
-    if (getRes.status === 200) {
-        return sessionId;
-    }
+    // if (getRes.status === 200) {
+    //     return sessionId;
+    // }
     
-    if (getRes.status === 404) {
+    if (true) {
         const createRes = await fetch(url, {
             method: 'POST',
             headers: {
@@ -192,9 +192,9 @@ export const checkOrCreateAdkSession = async (
             throw new Error(`ADK session creation failed: ${createRes.status} - ${errorText}`);
         }
     }
-    
+    return '';
     // 其他错误
-    throw new Error(`Unexpected response: ${getRes.status}`);
+    // throw new Error(`Unexpected response: ${getRes.status}`);
 };
 
 
@@ -369,9 +369,9 @@ export const convertAdkActionsToMarkup = (actions: AdkEvent['actions']): string 
  */
 export const isAdkResponseFinal = (adkEvent: AdkEvent): boolean => {
 	// Must not be partial - this is the fundamental requirement
-	if (adkEvent.partial) {
-		return false;
-	}
+	// if (adkEvent.partial) {
+	// 	return false;
+	// }
 	
 	// Check different types of final responses:
 	
@@ -389,9 +389,14 @@ export const isAdkResponseFinal = (adkEvent: AdkEvent): boolean => {
 	
 	// 5. Skip summarization action (tool result display)
 	const hasSkipSummarization = adkEvent.actions?.skipSummarization === true;
+
+
+	const hasFunctionCalls = adkEvent.content?.parts?.some(part => part.functionCall);
+	const hasFunctionResponses = adkEvent.content?.parts?.some(part => part.functionResponse);
+	const noPartialFinal = ( adkEvent.partial !== true && !hasFunctionCalls && !hasFunctionResponses )
 	
 	// Any of these conditions indicates a final, displayable event
-	return hasTextContent || hasFunctionResponse || hasLongRunningTools || isTurnComplete || hasSkipSummarization;
+	return hasTextContent || hasFunctionResponse || hasLongRunningTools || isTurnComplete || hasSkipSummarization || noPartialFinal;
 };
 
 /**

@@ -106,7 +106,7 @@
 	export let imageGenerationEnabled = false;
 	export let webSearchEnabled = false;
 	export let codeInterpreterEnabled = false;
-	export let isAgentMode = true;
+	export let isAgentMode = false; //true;
 
 	let showInputVariablesModal = false;
 	let inputVariablesModalCallback = (variableValues) => {};
@@ -1545,26 +1545,20 @@
 											{/if}
 
 												<!-- Agent/Ask Mode Selector -->
-												<div class="flex items-center gap-2 ml-2">
+												<!-- <div class="flex items-center gap-2 ml-2">
 													<button 
 													  type="button"
 													  class="relative inline-flex items-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-full"
 													  on:click={() => isAgentMode = !isAgentMode}
 													  aria-label={isAgentMode ? 'Switch to Ask mode' : 'Switch to Agent mode'}
 													>
-													  <!-- Background track -->
 													  <div class="w-32 h-8 bg-gray-200 rounded-full relative transition-colors duration-200">
-														<!-- Left fixed label (Ask) -->
 														<div class="absolute left-2 top-1 bottom-1 flex items-center text-xs font-medium text-gray-600">
 														  ask
 														</div>
-														
-														<!-- Right fixed label (Agent) -->
 														<div class="absolute right-2 top-1 bottom-1 flex items-center text-xs font-medium text-gray-600">
 														  agent
 														</div>
-														
-														<!-- Sliding white background block -->
 														<div class={`absolute bg-white rounded-full h-6 w-14 top-1 shadow-sm transform transition-transform duration-200 ${
 														  isAgentMode ? 'translate-x-16' : 'translate-x-1'
 														}`}>
@@ -1572,7 +1566,7 @@
 														</div>
 													  </div>
 													</button>
-												</div>
+												</div> -->
 											{#if imageGenerationEnabled}
 												<Tooltip content={$i18n.t('Image')} placement="top">
 													<button

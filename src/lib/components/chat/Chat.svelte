@@ -144,7 +144,7 @@
 	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
 	let codeInterpreterEnabled = false;
-	let isAgentMode = true;
+	let isAgentMode = false; //true;
 	let isAdkSessionInitialized = false;
 
 	let showCommands = false;
@@ -174,6 +174,7 @@
 	}
 
 	const getAdkSessionId = async () => {
+		console.warn('getAdkSessionId::')
 		if (!adkKnownSessionId.has($chatId)) {
 			const session_id = await checkOrCreateAdkSession(
 				adkBaseUrl || DEFAULT_ADK_BASE_URL,
@@ -184,7 +185,7 @@
 			);
 			if (session_id) {
 				adkKnownSessionId.set(session_id, true);
-				console.log('handleADK', 'checkOrCreateAdkSession', session_id);
+				console.warn('handleADK', 'checkOrCreateAdkSession', session_id);
 			}
 		} else {
 			console.warn('handleADK', 'adkKnownSessionId', adkKnownSessionId.get($chatId));
@@ -1470,6 +1471,7 @@
 
 		// Handle errors
 		if (adkEvent.errorCode || adkEvent.errorMessage) {
+			console.warn('adkEvent.errorCode', adkEvent.errorCode)
 			message.error = {
 				content: adkEvent.errorMessage || `ADK Error: ${adkEvent.errorCode}`
 			};
@@ -1482,6 +1484,7 @@
 
 		// Extract and append content from ADK parts using expanded markup format
 		if (adkEvent.content?.parts) {
+			console.warn('find adkEvent.content.parts',  adkEvent.content.parts)
 			if (adkEvent.partial == false && seenInvocations.has(adkEvent.invocationId)) {
 				console.warn('adkEventHandler', 'seenInvocations', seenInvocations, adkEvent); // stream behavior for google adk /run_sse...
 			}
@@ -1497,6 +1500,7 @@
 
 		// Extract and append actions using expanded markup format
 		if (adkEvent.actions) {
+			console.warn('adkEvent.actions', adkEvent.actions)
 			const actionsMarkup = convertAdkActionsToMarkup(adkEvent.actions);
 			if (actionsMarkup) {
 				message.content += actionsMarkup;
@@ -1507,6 +1511,7 @@
 		// Only trigger haptic feedback and TTS if content was actually updated
 		if (contentUpdated) {
 			// Haptic feedback if enabled
+			console.warn('contentUpdated', contentUpdated)
 			if (navigator.vibrate && ($settings?.hapticFeedback ?? false)) {
 				navigator.vibrate(5);
 			}
@@ -1524,14 +1529,14 @@
 				messageContentParts[messageContentParts.length - 1] !== message.lastSentence
 			) {
 				message.lastSentence = messageContentParts[messageContentParts.length - 1];
-				eventTarget.dispatchEvent(
-					new CustomEvent('chat', {
-						detail: {
-							id: message.id,
-							content: messageContentParts[messageContentParts.length - 1]
-						}
-					})
-				);
+				// eventTarget.dispatchEvent(
+				// 	new CustomEvent('chat', {
+				// 		detail: {
+				// 			id: message.id,
+				// 			content: messageContentParts[messageContentParts.length - 1]
+				// 		}
+				// 	})
+				// );
 			}
 		}
 
@@ -1540,6 +1545,7 @@
 
 		// Update usage metadata if available
 		if (adkEvent.usageMetadata) {
+			console.warn('adkEvent.usageMetadata', adkEvent.usageMetadata)
 			message.usage = {
 				prompt_tokens: adkEvent.usageMetadata.promptTokenCount || 0,
 				completion_tokens: adkEvent.usageMetadata.candidatesTokenCount || 0,
@@ -1549,21 +1555,23 @@
 
 		// Update message in history
 		history.messages[message.id] = message;
+		console.warn('change history.messages[message.id]', message.id)
 
 		// Check if response is complete
 		if (isAdkResponseFinal(adkEvent)) {
+			console.warn('ADK response is complete');
 			message.done = true;
 
 			// Auto-copy response if enabled
-			if ($settings.responseAutoCopy) {
-				copyToClipboard(message.content);
-			}
+			// if ($settings.responseAutoCopy) {
+			// 	copyToClipboard(message.content);
+			// }
 
 			// Auto-playback if enabled
-			if ($settings.responseAutoPlayback && !$showCallOverlay) {
-				await tick();
-				document.getElementById(`speak-button-${message.id}`)?.click();
-			}
+			// if ($settings.responseAutoPlayback && !$showCallOverlay) {
+			// 	await tick();
+			// 	document.getElementById(`speak-button-${message.id}`)?.click();
+			// }
 
 			// Call completion handler
 			await chatCompletedHandler(
@@ -1572,13 +1580,14 @@
 				message.id,
 				createMessagesList(history, message.id)
 			);
+			console.warn('chatCompletedHandler done')
 		}
 
 		await tick();
 
-		if (autoScroll) {
-			scrollToBottom();
-		}
+		// if (autoScroll) {
+		// 	scrollToBottom();
+		// }
 	};
 
 	
@@ -1632,6 +1641,7 @@
 			const lastMessage = history.messages[history.currentId];
 			if (lastMessage.done != true) {
 				// Response not done
+				console.warn('Response not done')
 				return;
 			}
 
@@ -1854,7 +1864,7 @@
 	};
 
 	const sendMessageSocket = async (model, _messages, _history, responseMessageId, _chatId) => {
-		console.log('sendMessageSocket - isAgentMode:', isAgentMode);
+		console.warn('sendMessageSocket - isAgentMode:', isAgentMode);
 		const responseMessage = _history.messages[responseMessageId];
 		const userMessage = _history.messages[responseMessage.parentId];
 
@@ -1881,13 +1891,16 @@
 		);
 
 		scrollToBottom();
-		eventTarget.dispatchEvent(
-			new CustomEvent('chat:start', {
-				detail: {
-					id: responseMessageId
-				}
-			})
-		);
+
+		if (isAgentMode === false) {
+			eventTarget.dispatchEvent(
+				new CustomEvent('chat:start', {
+					detail: {
+						id: responseMessageId
+					}
+				})
+			);
+		}
 		await tick();
 
 		let userLocation;
@@ -1896,14 +1909,15 @@
 				console.error(err);
 				return undefined;
 			});
-		}
-
+		}	
+        console.warn('streams::')
 		const stream =
 			model?.info?.params?.stream_response ??
 			$settings?.params?.stream_response ??
 			params?.stream_response ??
 			true;
-
+        
+		console.warn('messages::')
 		let messages = [
 			params?.system || $settings.system
 				? {
@@ -1916,6 +1930,8 @@
 				content: processDetails(message.content)
 			}))
 		].filter((message) => message);
+
+		
 
 		messages = messages
 			.map((message, idx, arr) => ({
@@ -1947,6 +1963,8 @@
 		const toolIds = [];
 		const toolServerIds = [];
 
+
+		console.warn('toolIds::')
 		for (const toolId of selectedToolIds) {
 			if (toolId.startsWith('direct_server:')) {
 				let serverId = toolId.replace('direct_server:', '');
@@ -2059,7 +2077,7 @@
 				}
 			}
 		}
-
+		console.warn('handleADK::')
 		const handleADK = async () => {
 			try {
 				console.log('handleADK', 'isAdkSessionInitialized', isAdkSessionInitialized);
@@ -2079,7 +2097,7 @@
 						adkKnownSessionId.set(session_id, true);
 					}
 				} else {
-					session_id = adkKnownSessionId.get($chatId);
+					session_id = $chatId;
 					console.log('handleADK', 'checkOrCreateAdkSession', session_id);
 				}
 
@@ -2106,9 +2124,17 @@
 					(event) => adkEventHandler(event, responseMessage, _chatId) // 回调处理 ADK 事件
 				);
 
-				if (res?.error) {
-					// await handleADKError(res.error, responseMessage);
-					// await handleOpenAIError(res.error, responseMessage);
+				if (res) {
+				    if (res.error) {
+						console.error('ADK request failed:', res.error);
+						// await handleOpenAIError(res.error, responseMessage);
+					} else {
+						if (taskIds) {
+							taskIds.push(res.task_id);
+						} else {
+							taskIds = [res.task_id];
+						}
+					}
 				}
 			} catch (error) {
 				console.error('ADK request failed:', error);
@@ -2117,16 +2143,19 @@
 				history.messages[responseMessageId] = responseMessage;
 				history.currentId = responseMessageId;
 			}
+			
 		}
 
+		console.warn('judge isAgentMode::')
 		if (isAgentMode === false) {
 			await handleOpenAI();
 			} else {
+			console.warn('calling handleADK::')
 			await  handleADK(); 
 			}
 
 		await tick();
-		scrollToBottom();
+		// scrollToBottom();
 	};
 
 	const handleOpenAIError = async (error, responseMessage) => {
