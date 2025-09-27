@@ -207,6 +207,8 @@ ENV WEBUI_BUILD_VERSION=${BUILD_HASH}
 ENV DOCKER=true
 
 ENV SHELL=/bin/bash
+RUN echo 'export PATH="/root/bin:$PATH"' >> /etc/profile
+
 WORKDIR /
 
 CMD [ "bash", "-l", "-c", "cd /app/backend && source ./start.sh"]
