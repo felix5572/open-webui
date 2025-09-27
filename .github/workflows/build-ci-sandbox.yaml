@@ -39,10 +39,10 @@ jobs:
           tags: |
             # Always tag as latest (keep most recent)
             type=raw,value=latest
-            # Bleeding tag identifies this as bleeding edge version
-            type=raw,value=bleeding
+            # ci-sandbox tag identifies this as ci-sandbox version
+            type=raw,value=ci-sandbox
             # Git commit SHA for rollback and tracking
-            type=sha,prefix=bleeding-{{date 'YYYYMMDD'}}-
+            type=sha,prefix=ci-sandbox-{{date 'YYYYMMDD'}}-
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
