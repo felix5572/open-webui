@@ -3,7 +3,7 @@
 # use build args in the docker build command with --build-arg="BUILDARG=true"
 ARG USE_CUDA=false
 ARG USE_OLLAMA=false
-ARG USE_SLIM=false
+ARG USE_SLIM=true
 ARG USE_PERMISSION_HARDENING=false
 # Tested with cu117 for CUDA 11 and cu121 for CUDA 12 (default)
 ARG USE_CUDA_VER=cu128
@@ -99,6 +99,7 @@ ENV HF_HOME="/app/backend/data/cache/embedding/models"
 
 #### Other models ##########################################################
 
+
 WORKDIR /app/backend
 
 ENV HOME=/root
@@ -120,8 +121,13 @@ RUN chown -R $UID:$GID /app $HOME
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git build-essential pandoc gcc netcat-openbsd curl jq \
+    procps grep lsof net-tools iproute2 dnsutils less psmisc findutils wget strace rsync vim-tiny htop tree sqlite3 \
+    # for jupyterlab jlpm
+    nodejs npm \
     python3-dev \
     ffmpeg libsm6 libxext6 \
+    fonts-wqy-zenhei \
+    # && fc-cache -f -v \
     && rm -rf /var/lib/apt/lists/*
 
 # install python dependencies
@@ -144,8 +150,20 @@ RUN pip3 install --no-cache-dir uv && \
     python -c "import os; import tiktoken; tiktoken.get_encoding(os.environ['TIKTOKEN_ENCODING_NAME'])"; \
     fi; \
     fi; \
+    uv pip install --system --no-cache-dir jupyterlab && \
+    uv pip install --system --no-cache-dir jupyter_openwebui && \
+    uv pip install --system --no-cache-dir google-adk>=1.1.0 cloudevents supervisor litellm fastmcp python-jose[cryptography] modal && \
+    uv pip install --system --no-cache-dir matplotlib  ipywidgets seaborn tqdm loguru  && \
+    uv pip install --system --no-cache-dir ase dpdata pymatgen && \
+    uv pip install --system --no-cache-dir bohrium-open-sdk dpdispatcher dpdata && \
     mkdir -p /app/backend/data && chown -R $UID:$GID /app/backend/data/ && \
     rm -rf /var/lib/apt/lists/*;
+
+RUN mkdir -p /root/.config/matplotlib && \
+    echo "font.family: sans-serif" > /root/.config/matplotlib/matplotlibrc && \
+    echo "font.sans-serif: WenQuanYi Zen Hei, SimHei, DejaVu Sans" >> /root/.config/matplotlib/matplotlibrc && \
+    echo "axes.unicode_minus: False" >> /root/.config/matplotlib/matplotlibrc && \
+    rm -rf /root/.cache/matplotlib
 
 # Install Ollama if requested
 RUN if [ "$USE_OLLAMA" = "true" ]; then \
@@ -188,4 +206,7 @@ ARG BUILD_HASH
 ENV WEBUI_BUILD_VERSION=${BUILD_HASH}
 ENV DOCKER=true
 
-CMD [ "bash", "start.sh"]
+ENV SHELL=/bin/bash
+WORKDIR /
+
+CMD [ "bash", "-l", "-c", "cd /app/backend && source ./start.sh"]

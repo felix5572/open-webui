@@ -71,4 +71,16 @@ fi
 
 PYTHON_CMD=$(command -v python3 || command -v python)
 
+# Check data directory
+echo "Using data directory: $DATA_DIR"
+
+if [ -f "$DATA_DIR/webui.db" ]; then
+  echo "Existing database found, using persistent data"
+else
+  echo "No existing database, creating initial data..."
+  mkdir -p "$DATA_DIR"
+  cp -r ./data/* "$DATA_DIR/"
+  echo "Initial data copied to $DATA_DIR"
+fi
+
 WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec "$PYTHON_CMD" -m uvicorn open_webui.main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*' --workers "${UVICORN_WORKERS:-1}"
