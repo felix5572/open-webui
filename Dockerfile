@@ -151,7 +151,7 @@ RUN pip3 install --no-cache-dir uv && \
     fi; \
     fi; \
     uv pip install --system --no-cache-dir jupyterlab && \
-    uv pip install --system --no-cache-dir jupyter_openwebui && \
+    uv pip install --system --no-cache-dir jupyter_openwebui==0.2.1 && \
     uv pip install --system --no-cache-dir google-adk>=1.1.0 cloudevents supervisor litellm fastmcp python-jose[cryptography] modal && \
     uv pip install --system --no-cache-dir matplotlib  ipywidgets seaborn tqdm loguru  && \
     uv pip install --system --no-cache-dir ase dpdata pymatgen && \
