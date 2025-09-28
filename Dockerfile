@@ -200,6 +200,8 @@ RUN if [ "$USE_PERMISSION_HARDENING" = "true" ]; then \
     find /root -type d -exec chmod g+s {} + || true; \
     fi
 
+RUN echo 'export PATH="/root/bin:$PATH"' >> /etc/profile
+
 USER $UID:$GID
 
 ARG BUILD_HASH
@@ -207,7 +209,7 @@ ENV WEBUI_BUILD_VERSION=${BUILD_HASH}
 ENV DOCKER=true
 
 ENV SHELL=/bin/bash
-RUN echo 'export PATH="/root/bin:$PATH"' >> /etc/profile
+
 
 WORKDIR /
 
