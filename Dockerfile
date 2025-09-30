@@ -156,7 +156,8 @@ RUN pip3 install --no-cache-dir uv && \
     uv pip install --system --no-cache-dir matplotlib  ipywidgets seaborn tqdm loguru nglview && \
     uv pip install --system --no-cache-dir ase dpdata pymatgen && \
     uv pip install --system --no-cache-dir bohrium-open-sdk dpdispatcher dpdata && \
-    jupyter labextension install nglview@latest --enable \
+    uv pip install --system --no-cache-dir nglview && \
+    jupyter labextension enable --py nglview \
     mkdir -p /app/backend/data && chown -R $UID:$GID /app/backend/data/ && \
     rm -rf /var/lib/apt/lists/*;
 
